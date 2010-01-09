@@ -405,8 +405,11 @@ nih_str_split (const void *parent,
 		const char  *ptr;
 
 		/* Skip initial delimiters */
-		while (repeat && strchr (delim, *str))
+		while (repeat && *str && strchr (delim, *str))
 			str++;
+
+		if (! *str)
+			break;
 
 		/* Find the end of the token */
 		ptr = str;

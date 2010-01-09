@@ -41,7 +41,7 @@ TESTS = test_system$(EXEEXT) test_environ$(EXEEXT) \
 	test_event$(EXEEXT) test_event_operator$(EXEEXT) \
 	test_blocked$(EXEEXT) test_parse_job$(EXEEXT) \
 	test_parse_conf$(EXEEXT) test_conf$(EXEEXT) \
-	test_control$(EXEEXT)
+	test_control$(EXEEXT) test_perf_log$(EXEEXT)
 check_PROGRAMS = $(am__EXEEXT_1)
 subdir = init
 DIST_COMMON = $(dist_man_MANS) $(srcdir)/Makefile.am \
@@ -80,7 +80,7 @@ am__EXEEXT_1 = test_system$(EXEEXT) test_environ$(EXEEXT) \
 	test_event$(EXEEXT) test_event_operator$(EXEEXT) \
 	test_blocked$(EXEEXT) test_parse_job$(EXEEXT) \
 	test_parse_conf$(EXEEXT) test_conf$(EXEEXT) \
-	test_control$(EXEEXT)
+	test_control$(EXEEXT) test_perf_log$(EXEEXT)
 am__installdirs = "$(DESTDIR)$(sbindir)" "$(DESTDIR)$(man5dir)" \
 	"$(DESTDIR)$(man7dir)" "$(DESTDIR)$(man8dir)"
 PROGRAMS = $(sbin_PROGRAMS)
@@ -88,7 +88,7 @@ am_init_OBJECTS = main.$(OBJEXT) system.$(OBJEXT) environ.$(OBJEXT) \
 	process.$(OBJEXT) job_class.$(OBJEXT) job_process.$(OBJEXT) \
 	job.$(OBJEXT) event.$(OBJEXT) event_operator.$(OBJEXT) \
 	blocked.$(OBJEXT) parse_job.$(OBJEXT) parse_conf.$(OBJEXT) \
-	conf.$(OBJEXT) control.$(OBJEXT)
+	conf.$(OBJEXT) control.$(OBJEXT) perf_log.$(OBJEXT)
 am__objects_1 = com.ubuntu.Upstart.$(OBJEXT)
 am__objects_2 = com.ubuntu.Upstart.Job.$(OBJEXT)
 am__objects_3 = com.ubuntu.Upstart.Instance.$(OBJEXT)
@@ -102,10 +102,10 @@ am_test_blocked_OBJECTS = test_blocked.$(OBJEXT)
 test_blocked_OBJECTS = $(am_test_blocked_OBJECTS)
 test_blocked_DEPENDENCIES = system.o environ.o process.o job_class.o \
 	job_process.o job.o event.o event_operator.o blocked.o \
-	parse_job.o parse_conf.o conf.o control.o com.ubuntu.Upstart.o \
-	com.ubuntu.Upstart.Job.o com.ubuntu.Upstart.Instance.o \
-	../nih/libnih.la ../nih-dbus/libnih-dbus.la \
-	$(am__DEPENDENCIES_1)
+	parse_job.o parse_conf.o conf.o control.o perf_log.o \
+	com.ubuntu.Upstart.o com.ubuntu.Upstart.Job.o \
+	com.ubuntu.Upstart.Instance.o ../nih/libnih.la \
+	../nih-dbus/libnih-dbus.la $(am__DEPENDENCIES_1)
 test_blocked_LINK = $(LIBTOOL) --tag=CC $(AM_LIBTOOLFLAGS) \
 	$(LIBTOOLFLAGS) --mode=link $(CCLD) $(AM_CFLAGS) $(CFLAGS) \
 	$(test_blocked_LDFLAGS) $(LDFLAGS) -o $@
@@ -113,10 +113,10 @@ am_test_conf_OBJECTS = test_conf.$(OBJEXT)
 test_conf_OBJECTS = $(am_test_conf_OBJECTS)
 test_conf_DEPENDENCIES = system.o environ.o process.o job_class.o \
 	job_process.o job.o event.o event_operator.o blocked.o \
-	parse_job.o parse_conf.o conf.o control.o com.ubuntu.Upstart.o \
-	com.ubuntu.Upstart.Job.o com.ubuntu.Upstart.Instance.o \
-	../nih/libnih.la ../nih-dbus/libnih-dbus.la \
-	$(am__DEPENDENCIES_1)
+	parse_job.o parse_conf.o conf.o control.o perf_log.o \
+	com.ubuntu.Upstart.o com.ubuntu.Upstart.Job.o \
+	com.ubuntu.Upstart.Instance.o ../nih/libnih.la \
+	../nih-dbus/libnih-dbus.la $(am__DEPENDENCIES_1)
 test_conf_LINK = $(LIBTOOL) --tag=CC $(AM_LIBTOOLFLAGS) \
 	$(LIBTOOLFLAGS) --mode=link $(CCLD) $(AM_CFLAGS) $(CFLAGS) \
 	$(test_conf_LDFLAGS) $(LDFLAGS) -o $@
@@ -124,10 +124,10 @@ am_test_control_OBJECTS = test_control.$(OBJEXT)
 test_control_OBJECTS = $(am_test_control_OBJECTS)
 test_control_DEPENDENCIES = system.o environ.o process.o job_class.o \
 	job_process.o job.o event.o event_operator.o blocked.o \
-	parse_job.o parse_conf.o conf.o control.o com.ubuntu.Upstart.o \
-	com.ubuntu.Upstart.Job.o com.ubuntu.Upstart.Instance.o \
-	../nih/libnih.la ../nih-dbus/libnih-dbus.la \
-	$(am__DEPENDENCIES_1)
+	parse_job.o parse_conf.o conf.o control.o perf_log.o \
+	com.ubuntu.Upstart.o com.ubuntu.Upstart.Job.o \
+	com.ubuntu.Upstart.Instance.o ../nih/libnih.la \
+	../nih-dbus/libnih-dbus.la $(am__DEPENDENCIES_1)
 test_control_LINK = $(LIBTOOL) --tag=CC $(AM_LIBTOOLFLAGS) \
 	$(LIBTOOLFLAGS) --mode=link $(CCLD) $(AM_CFLAGS) $(CFLAGS) \
 	$(test_control_LDFLAGS) $(LDFLAGS) -o $@
@@ -141,10 +141,10 @@ am_test_event_OBJECTS = test_event.$(OBJEXT)
 test_event_OBJECTS = $(am_test_event_OBJECTS)
 test_event_DEPENDENCIES = system.o environ.o process.o job_class.o \
 	job_process.o job.o event.o event_operator.o blocked.o \
-	parse_job.o parse_conf.o conf.o control.o com.ubuntu.Upstart.o \
-	com.ubuntu.Upstart.Job.o com.ubuntu.Upstart.Instance.o \
-	../nih/libnih.la ../nih-dbus/libnih-dbus.la \
-	$(am__DEPENDENCIES_1)
+	parse_job.o parse_conf.o conf.o control.o perf_log.o \
+	com.ubuntu.Upstart.o com.ubuntu.Upstart.Job.o \
+	com.ubuntu.Upstart.Instance.o ../nih/libnih.la \
+	../nih-dbus/libnih-dbus.la $(am__DEPENDENCIES_1)
 test_event_LINK = $(LIBTOOL) --tag=CC $(AM_LIBTOOLFLAGS) \
 	$(LIBTOOLFLAGS) --mode=link $(CCLD) $(AM_CFLAGS) $(CFLAGS) \
 	$(test_event_LDFLAGS) $(LDFLAGS) -o $@
@@ -152,7 +152,7 @@ am_test_event_operator_OBJECTS = test_event_operator.$(OBJEXT)
 test_event_operator_OBJECTS = $(am_test_event_operator_OBJECTS)
 test_event_operator_DEPENDENCIES = system.o environ.o process.o \
 	job_class.o job_process.o job.o event.o event_operator.o \
-	blocked.o parse_job.o parse_conf.o conf.o control.o \
+	blocked.o parse_job.o parse_conf.o conf.o control.o perf_log.o \
 	com.ubuntu.Upstart.o com.ubuntu.Upstart.Job.o \
 	com.ubuntu.Upstart.Instance.o ../nih/libnih.la \
 	../nih-dbus/libnih-dbus.la $(am__DEPENDENCIES_1)
@@ -163,10 +163,10 @@ am_test_job_OBJECTS = test_job.$(OBJEXT)
 test_job_OBJECTS = $(am_test_job_OBJECTS)
 test_job_DEPENDENCIES = system.o environ.o process.o job_class.o \
 	job_process.o job.o event.o event_operator.o blocked.o \
-	parse_job.o parse_conf.o conf.o control.o com.ubuntu.Upstart.o \
-	com.ubuntu.Upstart.Job.o com.ubuntu.Upstart.Instance.o \
-	../nih/libnih.la ../nih-dbus/libnih-dbus.la \
-	$(am__DEPENDENCIES_1)
+	parse_job.o parse_conf.o conf.o control.o perf_log.o \
+	com.ubuntu.Upstart.o com.ubuntu.Upstart.Job.o \
+	com.ubuntu.Upstart.Instance.o ../nih/libnih.la \
+	../nih-dbus/libnih-dbus.la $(am__DEPENDENCIES_1)
 test_job_LINK = $(LIBTOOL) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) \
 	--mode=link $(CCLD) $(AM_CFLAGS) $(CFLAGS) $(test_job_LDFLAGS) \
 	$(LDFLAGS) -o $@
@@ -174,10 +174,10 @@ am_test_job_class_OBJECTS = test_job_class.$(OBJEXT)
 test_job_class_OBJECTS = $(am_test_job_class_OBJECTS)
 test_job_class_DEPENDENCIES = system.o environ.o process.o job_class.o \
 	job_process.o job.o event.o event_operator.o blocked.o \
-	parse_job.o parse_conf.o conf.o control.o com.ubuntu.Upstart.o \
-	com.ubuntu.Upstart.Job.o com.ubuntu.Upstart.Instance.o \
-	../nih/libnih.la ../nih-dbus/libnih-dbus.la \
-	$(am__DEPENDENCIES_1)
+	parse_job.o parse_conf.o conf.o control.o perf_log.o \
+	com.ubuntu.Upstart.o com.ubuntu.Upstart.Job.o \
+	com.ubuntu.Upstart.Instance.o ../nih/libnih.la \
+	../nih-dbus/libnih-dbus.la $(am__DEPENDENCIES_1)
 test_job_class_LINK = $(LIBTOOL) --tag=CC $(AM_LIBTOOLFLAGS) \
 	$(LIBTOOLFLAGS) --mode=link $(CCLD) $(AM_CFLAGS) $(CFLAGS) \
 	$(test_job_class_LDFLAGS) $(LDFLAGS) -o $@
@@ -185,7 +185,7 @@ am_test_job_process_OBJECTS = test_job_process.$(OBJEXT)
 test_job_process_OBJECTS = $(am_test_job_process_OBJECTS)
 test_job_process_DEPENDENCIES = system.o environ.o process.o \
 	job_class.o job_process.o job.o event.o event_operator.o \
-	blocked.o parse_job.o parse_conf.o conf.o control.o \
+	blocked.o parse_job.o parse_conf.o conf.o control.o perf_log.o \
 	com.ubuntu.Upstart.o com.ubuntu.Upstart.Job.o \
 	com.ubuntu.Upstart.Instance.o ../nih/libnih.la \
 	../nih-dbus/libnih-dbus.la $(am__DEPENDENCIES_1)
@@ -196,7 +196,7 @@ am_test_parse_conf_OBJECTS = test_parse_conf.$(OBJEXT)
 test_parse_conf_OBJECTS = $(am_test_parse_conf_OBJECTS)
 test_parse_conf_DEPENDENCIES = system.o environ.o process.o \
 	job_class.o job_process.o job.o event.o event_operator.o \
-	blocked.o parse_job.o parse_conf.o conf.o control.o \
+	blocked.o parse_job.o parse_conf.o conf.o control.o perf_log.o \
 	com.ubuntu.Upstart.o com.ubuntu.Upstart.Job.o \
 	com.ubuntu.Upstart.Instance.o ../nih/libnih.la \
 	../nih-dbus/libnih-dbus.la $(am__DEPENDENCIES_1)
@@ -207,21 +207,32 @@ am_test_parse_job_OBJECTS = test_parse_job.$(OBJEXT)
 test_parse_job_OBJECTS = $(am_test_parse_job_OBJECTS)
 test_parse_job_DEPENDENCIES = system.o environ.o process.o job_class.o \
 	job_process.o job.o event.o event_operator.o blocked.o \
-	parse_job.o parse_conf.o conf.o control.o com.ubuntu.Upstart.o \
-	com.ubuntu.Upstart.Job.o com.ubuntu.Upstart.Instance.o \
-	../nih/libnih.la ../nih-dbus/libnih-dbus.la \
-	$(am__DEPENDENCIES_1)
+	parse_job.o parse_conf.o conf.o control.o perf_log.o \
+	com.ubuntu.Upstart.o com.ubuntu.Upstart.Job.o \
+	com.ubuntu.Upstart.Instance.o ../nih/libnih.la \
+	../nih-dbus/libnih-dbus.la $(am__DEPENDENCIES_1)
 test_parse_job_LINK = $(LIBTOOL) --tag=CC $(AM_LIBTOOLFLAGS) \
 	$(LIBTOOLFLAGS) --mode=link $(CCLD) $(AM_CFLAGS) $(CFLAGS) \
 	$(test_parse_job_LDFLAGS) $(LDFLAGS) -o $@
+am_test_perf_log_OBJECTS = test_perf_log.$(OBJEXT)
+test_perf_log_OBJECTS = $(am_test_perf_log_OBJECTS)
+test_perf_log_DEPENDENCIES = system.o environ.o process.o job_class.o \
+	job_process.o job.o event.o event_operator.o blocked.o \
+	parse_job.o parse_conf.o conf.o control.o perf_log.o \
+	com.ubuntu.Upstart.o com.ubuntu.Upstart.Job.o \
+	com.ubuntu.Upstart.Instance.o ../nih/libnih.la \
+	../nih-dbus/libnih-dbus.la $(am__DEPENDENCIES_1)
+test_perf_log_LINK = $(LIBTOOL) --tag=CC $(AM_LIBTOOLFLAGS) \
+	$(LIBTOOLFLAGS) --mode=link $(CCLD) $(AM_CFLAGS) $(CFLAGS) \
+	$(test_perf_log_LDFLAGS) $(LDFLAGS) -o $@
 am_test_process_OBJECTS = test_process.$(OBJEXT)
 test_process_OBJECTS = $(am_test_process_OBJECTS)
 test_process_DEPENDENCIES = system.o environ.o process.o job_class.o \
 	job_process.o job.o event.o event_operator.o blocked.o \
-	parse_job.o parse_conf.o conf.o control.o com.ubuntu.Upstart.o \
-	com.ubuntu.Upstart.Job.o com.ubuntu.Upstart.Instance.o \
-	../nih/libnih.la ../nih-dbus/libnih-dbus.la \
-	$(am__DEPENDENCIES_1)
+	parse_job.o parse_conf.o conf.o control.o perf_log.o \
+	com.ubuntu.Upstart.o com.ubuntu.Upstart.Job.o \
+	com.ubuntu.Upstart.Instance.o ../nih/libnih.la \
+	../nih-dbus/libnih-dbus.la $(am__DEPENDENCIES_1)
 test_process_LINK = $(LIBTOOL) --tag=CC $(AM_LIBTOOLFLAGS) \
 	$(LIBTOOLFLAGS) --mode=link $(CCLD) $(AM_CFLAGS) $(CFLAGS) \
 	$(test_process_LDFLAGS) $(LDFLAGS) -o $@
@@ -250,15 +261,16 @@ SOURCES = $(init_SOURCES) $(nodist_init_SOURCES) \
 	$(test_event_SOURCES) $(test_event_operator_SOURCES) \
 	$(test_job_SOURCES) $(test_job_class_SOURCES) \
 	$(test_job_process_SOURCES) $(test_parse_conf_SOURCES) \
-	$(test_parse_job_SOURCES) $(test_process_SOURCES) \
-	$(test_system_SOURCES)
+	$(test_parse_job_SOURCES) $(test_perf_log_SOURCES) \
+	$(test_process_SOURCES) $(test_system_SOURCES)
 DIST_SOURCES = $(init_SOURCES) $(test_blocked_SOURCES) \
 	$(test_conf_SOURCES) $(test_control_SOURCES) \
 	$(test_environ_SOURCES) $(test_event_SOURCES) \
 	$(test_event_operator_SOURCES) $(test_job_SOURCES) \
 	$(test_job_class_SOURCES) $(test_job_process_SOURCES) \
 	$(test_parse_conf_SOURCES) $(test_parse_job_SOURCES) \
-	$(test_process_SOURCES) $(test_system_SOURCES)
+	$(test_perf_log_SOURCES) $(test_process_SOURCES) \
+	$(test_system_SOURCES)
 am__vpath_adj_setup = srcdirstrip=`echo "$(srcdir)" | sed 's|.|.|g'`;
 am__vpath_adj = case $$p in \
     $(srcdir)/*) f=`echo "$$p" | sed "s|^$$srcdirstrip/||"`;; \
@@ -494,6 +506,7 @@ init_SOURCES = \
 	parse_conf.c parse_conf.h \
 	conf.c conf.h \
 	control.c control.h \
+	perf_log.c perf_log.h \
 	errors.h
 
 nodist_init_SOURCES = \
@@ -560,7 +573,7 @@ test_process_LDFLAGS = -static
 test_process_LDADD = \
 	system.o environ.o process.o \
 	job_class.o job_process.o job.o event.o event_operator.o blocked.o \
-	parse_job.o parse_conf.o conf.o control.o \
+	parse_job.o parse_conf.o conf.o control.o perf_log.o \
 	com.ubuntu.Upstart.o \
 	com.ubuntu.Upstart.Job.o com.ubuntu.Upstart.Instance.o \
 	../nih/libnih.la \
@@ -572,7 +585,7 @@ test_job_class_LDFLAGS = -static
 test_job_class_LDADD = \
 	system.o environ.o process.o \
 	job_class.o job_process.o job.o event.o event_operator.o blocked.o \
-	parse_job.o parse_conf.o conf.o control.o \
+	parse_job.o parse_conf.o conf.o control.o perf_log.o \
 	com.ubuntu.Upstart.o \
 	com.ubuntu.Upstart.Job.o com.ubuntu.Upstart.Instance.o \
 	../nih/libnih.la \
@@ -584,7 +597,7 @@ test_job_process_LDFLAGS = -static
 test_job_process_LDADD = \
 	system.o environ.o process.o \
 	job_class.o job_process.o job.o event.o event_operator.o blocked.o \
-	parse_job.o parse_conf.o conf.o control.o \
+	parse_job.o parse_conf.o conf.o control.o perf_log.o \
 	com.ubuntu.Upstart.o \
 	com.ubuntu.Upstart.Job.o com.ubuntu.Upstart.Instance.o \
 	../nih/libnih.la \
@@ -596,7 +609,7 @@ test_job_LDFLAGS = -static
 test_job_LDADD = \
 	system.o environ.o process.o \
 	job_class.o job_process.o job.o event.o event_operator.o blocked.o \
-	parse_job.o parse_conf.o conf.o control.o \
+	parse_job.o parse_conf.o conf.o control.o perf_log.o \
 	com.ubuntu.Upstart.o \
 	com.ubuntu.Upstart.Job.o com.ubuntu.Upstart.Instance.o \
 	../nih/libnih.la \
@@ -608,7 +621,7 @@ test_event_LDFLAGS = -static
 test_event_LDADD = \
 	system.o environ.o process.o \
 	job_class.o job_process.o job.o event.o event_operator.o blocked.o \
-	parse_job.o parse_conf.o conf.o control.o \
+	parse_job.o parse_conf.o conf.o control.o perf_log.o \
 	com.ubuntu.Upstart.o \
 	com.ubuntu.Upstart.Job.o com.ubuntu.Upstart.Instance.o \
 	../nih/libnih.la \
@@ -620,7 +633,7 @@ test_event_operator_LDFLAGS = -static
 test_event_operator_LDADD = \
 	system.o environ.o process.o \
 	job_class.o job_process.o job.o event.o event_operator.o blocked.o \
-	parse_job.o parse_conf.o conf.o control.o \
+	parse_job.o parse_conf.o conf.o control.o perf_log.o \
 	com.ubuntu.Upstart.o \
 	com.ubuntu.Upstart.Job.o com.ubuntu.Upstart.Instance.o \
 	../nih/libnih.la \
@@ -632,7 +645,7 @@ test_blocked_LDFLAGS = -static
 test_blocked_LDADD = \
 	system.o environ.o process.o \
 	job_class.o job_process.o job.o event.o event_operator.o blocked.o \
-	parse_job.o parse_conf.o conf.o control.o \
+	parse_job.o parse_conf.o conf.o control.o perf_log.o \
 	com.ubuntu.Upstart.o \
 	com.ubuntu.Upstart.Job.o com.ubuntu.Upstart.Instance.o \
 	../nih/libnih.la \
@@ -644,7 +657,7 @@ test_parse_job_LDFLAGS = -static
 test_parse_job_LDADD = \
 	system.o environ.o process.o \
 	job_class.o job_process.o job.o event.o event_operator.o blocked.o \
-	parse_job.o parse_conf.o conf.o control.o \
+	parse_job.o parse_conf.o conf.o control.o perf_log.o \
 	com.ubuntu.Upstart.o \
 	com.ubuntu.Upstart.Job.o com.ubuntu.Upstart.Instance.o \
 	../nih/libnih.la \
@@ -656,7 +669,7 @@ test_parse_conf_LDFLAGS = -static
 test_parse_conf_LDADD = \
 	system.o environ.o process.o \
 	job_class.o job_process.o job.o event.o event_operator.o blocked.o \
-	parse_job.o parse_conf.o conf.o control.o \
+	parse_job.o parse_conf.o conf.o control.o perf_log.o \
 	com.ubuntu.Upstart.o \
 	com.ubuntu.Upstart.Job.o com.ubuntu.Upstart.Instance.o \
 	../nih/libnih.la \
@@ -668,7 +681,7 @@ test_conf_LDFLAGS = -static
 test_conf_LDADD = \
 	system.o environ.o process.o \
 	job_class.o job_process.o job.o event.o event_operator.o blocked.o \
-	parse_job.o parse_conf.o conf.o control.o \
+	parse_job.o parse_conf.o conf.o control.o perf_log.o \
 	com.ubuntu.Upstart.o \
 	com.ubuntu.Upstart.Job.o com.ubuntu.Upstart.Instance.o \
 	../nih/libnih.la \
@@ -680,7 +693,19 @@ test_control_LDFLAGS = -static
 test_control_LDADD = \
 	system.o environ.o process.o \
 	job_class.o job_process.o job.o event.o event_operator.o blocked.o \
-	parse_job.o parse_conf.o conf.o control.o \
+	parse_job.o parse_conf.o conf.o control.o perf_log.o \
+	com.ubuntu.Upstart.o \
+	com.ubuntu.Upstart.Job.o com.ubuntu.Upstart.Instance.o \
+	../nih/libnih.la \
+	../nih-dbus/libnih-dbus.la \
+	$(DBUS_LIBS)
+
+test_perf_log_SOURCES = tests/test_perf_log.c
+test_perf_log_LDFLAGS = -static
+test_perf_log_LDADD = \
+	system.o environ.o process.o \
+	job_class.o job_process.o job.o event.o event_operator.o blocked.o \
+	parse_job.o parse_conf.o conf.o control.o perf_log.o \
 	com.ubuntu.Upstart.o \
 	com.ubuntu.Upstart.Job.o com.ubuntu.Upstart.Instance.o \
 	../nih/libnih.la \
@@ -810,6 +835,9 @@ test_parse_conf$(EXEEXT): $(test_parse_conf_OBJECTS) $(test_parse_conf_DEPENDENC
 test_parse_job$(EXEEXT): $(test_parse_job_OBJECTS) $(test_parse_job_DEPENDENCIES) 
 	@rm -f test_parse_job$(EXEEXT)
 	$(test_parse_job_LINK) $(test_parse_job_OBJECTS) $(test_parse_job_LDADD) $(LIBS)
+test_perf_log$(EXEEXT): $(test_perf_log_OBJECTS) $(test_perf_log_DEPENDENCIES) 
+	@rm -f test_perf_log$(EXEEXT)
+	$(test_perf_log_LINK) $(test_perf_log_OBJECTS) $(test_perf_log_LDADD) $(LIBS)
 test_process$(EXEEXT): $(test_process_OBJECTS) $(test_process_DEPENDENCIES) 
 	@rm -f test_process$(EXEEXT)
 	$(test_process_LINK) $(test_process_OBJECTS) $(test_process_LDADD) $(LIBS)
@@ -838,6 +866,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/main.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/parse_conf.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/parse_job.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/perf_log.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/process.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/system.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test_blocked.Po@am__quote@
@@ -851,6 +880,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test_job_process.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test_parse_conf.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test_parse_job.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test_perf_log.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test_process.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test_system.Po@am__quote@
 
@@ -1028,6 +1058,20 @@ test_parse_job.obj: tests/test_parse_job.c
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	source='tests/test_parse_job.c' object='test_parse_job.obj' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o test_parse_job.obj `if test -f 'tests/test_parse_job.c'; then $(CYGPATH_W) 'tests/test_parse_job.c'; else $(CYGPATH_W) '$(srcdir)/tests/test_parse_job.c'; fi`
+
+test_perf_log.o: tests/test_perf_log.c
+@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT test_perf_log.o -MD -MP -MF $(DEPDIR)/test_perf_log.Tpo -c -o test_perf_log.o `test -f 'tests/test_perf_log.c' || echo '$(srcdir)/'`tests/test_perf_log.c
+@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/test_perf_log.Tpo $(DEPDIR)/test_perf_log.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='tests/test_perf_log.c' object='test_perf_log.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o test_perf_log.o `test -f 'tests/test_perf_log.c' || echo '$(srcdir)/'`tests/test_perf_log.c
+
+test_perf_log.obj: tests/test_perf_log.c
+@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT test_perf_log.obj -MD -MP -MF $(DEPDIR)/test_perf_log.Tpo -c -o test_perf_log.obj `if test -f 'tests/test_perf_log.c'; then $(CYGPATH_W) 'tests/test_perf_log.c'; else $(CYGPATH_W) '$(srcdir)/tests/test_perf_log.c'; fi`
+@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/test_perf_log.Tpo $(DEPDIR)/test_perf_log.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='tests/test_perf_log.c' object='test_perf_log.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o test_perf_log.obj `if test -f 'tests/test_perf_log.c'; then $(CYGPATH_W) 'tests/test_perf_log.c'; else $(CYGPATH_W) '$(srcdir)/tests/test_perf_log.c'; fi`
 
 test_process.o: tests/test_process.c
 @am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT test_process.o -MD -MP -MF $(DEPDIR)/test_process.Tpo -c -o test_process.o `test -f 'tests/test_process.c' || echo '$(srcdir)/'`tests/test_process.c

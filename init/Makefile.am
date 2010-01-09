@@ -48,6 +48,7 @@ init_SOURCES = \
 	parse_conf.c parse_conf.h \
 	conf.c conf.h \
 	control.c control.h \
+	perf_log.c perf_log.h \
 	errors.h
 nodist_init_SOURCES = \
 	$(com_ubuntu_Upstart_OUTPUTS) \
@@ -129,7 +130,8 @@ TESTS = \
 	test_parse_job \
 	test_parse_conf \
 	test_conf \
-	test_control
+	test_control \
+	test_perf_log
 
 check_PROGRAMS = $(TESTS)
 
@@ -152,7 +154,7 @@ test_process_LDFLAGS = -static
 test_process_LDADD = \
 	system.o environ.o process.o \
 	job_class.o job_process.o job.o event.o event_operator.o blocked.o \
-	parse_job.o parse_conf.o conf.o control.o \
+	parse_job.o parse_conf.o conf.o control.o perf_log.o \
 	com.ubuntu.Upstart.o \
 	com.ubuntu.Upstart.Job.o com.ubuntu.Upstart.Instance.o \
 	../nih/libnih.la \
@@ -164,7 +166,7 @@ test_job_class_LDFLAGS = -static
 test_job_class_LDADD = \
 	system.o environ.o process.o \
 	job_class.o job_process.o job.o event.o event_operator.o blocked.o \
-	parse_job.o parse_conf.o conf.o control.o \
+	parse_job.o parse_conf.o conf.o control.o perf_log.o \
 	com.ubuntu.Upstart.o \
 	com.ubuntu.Upstart.Job.o com.ubuntu.Upstart.Instance.o \
 	../nih/libnih.la \
@@ -176,7 +178,7 @@ test_job_process_LDFLAGS = -static
 test_job_process_LDADD = \
 	system.o environ.o process.o \
 	job_class.o job_process.o job.o event.o event_operator.o blocked.o \
-	parse_job.o parse_conf.o conf.o control.o \
+	parse_job.o parse_conf.o conf.o control.o perf_log.o \
 	com.ubuntu.Upstart.o \
 	com.ubuntu.Upstart.Job.o com.ubuntu.Upstart.Instance.o \
 	../nih/libnih.la \
@@ -188,7 +190,7 @@ test_job_LDFLAGS = -static
 test_job_LDADD = \
 	system.o environ.o process.o \
 	job_class.o job_process.o job.o event.o event_operator.o blocked.o \
-	parse_job.o parse_conf.o conf.o control.o \
+	parse_job.o parse_conf.o conf.o control.o perf_log.o \
 	com.ubuntu.Upstart.o \
 	com.ubuntu.Upstart.Job.o com.ubuntu.Upstart.Instance.o \
 	../nih/libnih.la \
@@ -200,7 +202,7 @@ test_event_LDFLAGS = -static
 test_event_LDADD = \
 	system.o environ.o process.o \
 	job_class.o job_process.o job.o event.o event_operator.o blocked.o \
-	parse_job.o parse_conf.o conf.o control.o \
+	parse_job.o parse_conf.o conf.o control.o perf_log.o \
 	com.ubuntu.Upstart.o \
 	com.ubuntu.Upstart.Job.o com.ubuntu.Upstart.Instance.o \
 	../nih/libnih.la \
@@ -212,7 +214,7 @@ test_event_operator_LDFLAGS = -static
 test_event_operator_LDADD = \
 	system.o environ.o process.o \
 	job_class.o job_process.o job.o event.o event_operator.o blocked.o \
-	parse_job.o parse_conf.o conf.o control.o \
+	parse_job.o parse_conf.o conf.o control.o perf_log.o \
 	com.ubuntu.Upstart.o \
 	com.ubuntu.Upstart.Job.o com.ubuntu.Upstart.Instance.o \
 	../nih/libnih.la \
@@ -224,7 +226,7 @@ test_blocked_LDFLAGS = -static
 test_blocked_LDADD = \
 	system.o environ.o process.o \
 	job_class.o job_process.o job.o event.o event_operator.o blocked.o \
-	parse_job.o parse_conf.o conf.o control.o \
+	parse_job.o parse_conf.o conf.o control.o perf_log.o \
 	com.ubuntu.Upstart.o \
 	com.ubuntu.Upstart.Job.o com.ubuntu.Upstart.Instance.o \
 	../nih/libnih.la \
@@ -236,7 +238,7 @@ test_parse_job_LDFLAGS = -static
 test_parse_job_LDADD = \
 	system.o environ.o process.o \
 	job_class.o job_process.o job.o event.o event_operator.o blocked.o \
-	parse_job.o parse_conf.o conf.o control.o \
+	parse_job.o parse_conf.o conf.o control.o perf_log.o \
 	com.ubuntu.Upstart.o \
 	com.ubuntu.Upstart.Job.o com.ubuntu.Upstart.Instance.o \
 	../nih/libnih.la \
@@ -248,7 +250,7 @@ test_parse_conf_LDFLAGS = -static
 test_parse_conf_LDADD = \
 	system.o environ.o process.o \
 	job_class.o job_process.o job.o event.o event_operator.o blocked.o \
-	parse_job.o parse_conf.o conf.o control.o \
+	parse_job.o parse_conf.o conf.o control.o perf_log.o \
 	com.ubuntu.Upstart.o \
 	com.ubuntu.Upstart.Job.o com.ubuntu.Upstart.Instance.o \
 	../nih/libnih.la \
@@ -260,7 +262,7 @@ test_conf_LDFLAGS = -static
 test_conf_LDADD = \
 	system.o environ.o process.o \
 	job_class.o job_process.o job.o event.o event_operator.o blocked.o \
-	parse_job.o parse_conf.o conf.o control.o \
+	parse_job.o parse_conf.o conf.o control.o perf_log.o \
 	com.ubuntu.Upstart.o \
 	com.ubuntu.Upstart.Job.o com.ubuntu.Upstart.Instance.o \
 	../nih/libnih.la \
@@ -272,13 +274,24 @@ test_control_LDFLAGS = -static
 test_control_LDADD = \
 	system.o environ.o process.o \
 	job_class.o job_process.o job.o event.o event_operator.o blocked.o \
-	parse_job.o parse_conf.o conf.o control.o \
+	parse_job.o parse_conf.o conf.o control.o perf_log.o \
 	com.ubuntu.Upstart.o \
 	com.ubuntu.Upstart.Job.o com.ubuntu.Upstart.Instance.o \
 	../nih/libnih.la \
 	../nih-dbus/libnih-dbus.la \
 	$(DBUS_LIBS)
 
+test_perf_log_SOURCES = tests/test_perf_log.c
+test_perf_log_LDFLAGS = -static
+test_perf_log_LDADD = \
+	system.o environ.o process.o \
+	job_class.o job_process.o job.o event.o event_operator.o blocked.o \
+	parse_job.o parse_conf.o conf.o control.o perf_log.o \
+	com.ubuntu.Upstart.o \
+	com.ubuntu.Upstart.Job.o com.ubuntu.Upstart.Instance.o \
+	../nih/libnih.la \
+	../nih-dbus/libnih-dbus.la \
+	$(DBUS_LIBS)
 
 install-data-local:
 	$(MKDIR_P) $(DESTDIR)$(initconfdir)

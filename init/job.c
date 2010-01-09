@@ -54,6 +54,7 @@
 #include "event_operator.h"
 #include "blocked.h"
 #include "control.h"
+#include "perf_log.h"
 
 #include "com.ubuntu.Upstart.Job.h"
 #include "com.ubuntu.Upstart.Instance.h"
@@ -284,6 +285,7 @@ job_change_state (Job      *job,
 
 		nih_info (_("%s state changed from %s to %s"), job_name (job),
 			  job_state_name (job->state), job_state_name (state));
+		perf_log_job_state_change(job, state);
 
 		old_state = job->state;
 		job->state = state;

@@ -242,6 +242,14 @@ main (int   argc,
 	NIH_MUST (nih_signal_add_handler (NULL, SIGUSR1, usr1_handler, NULL));
 #endif /* DEBUG */
 
+	/* Start performance logging using these hardcoded files.
+	 * TODO(kmixter): We'll want to make the files and fields
+	 * configurable eventually.
+	 */
+	perf_log_set_files ("/proc/uptime",
+			    "/sys/block/sda/stat",
+			    "/var/log/perf.log");
+
 
 	/* Watch children for events */
 	NIH_MUST (nih_child_add_watch (NULL, -1, NIH_CHILD_ALL,

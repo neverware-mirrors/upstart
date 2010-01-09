@@ -1,3 +1,9 @@
+upstart (0.6.3-11-chromeos1) karmic; urgency=low
+
+  * Forking for Chrome OS.  Adding support for performance logging.
+
+ -- The Chromium OS Authors <chromium-os-dev@googlegroups.com>  Mon, 04 Jan 2010 17:54:11 -0800
+
 upstart (0.6.3-11) karmic-proposed; urgency=low
 
   * Make rc-sysinit.conf wait on the loopback interface, to ensure that the

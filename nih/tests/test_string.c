@@ -663,6 +663,25 @@ test_str_split (void)
 
 		nih_free (array);
 	}
+
+        /* Check that we can give a string with only repeating
+         * delimiters, enable repeat, and we end up with a one-element
+         * array that only contains a NULL pointer.
+         */
+	TEST_FEATURE ("with empty string except for delimiters");
+	TEST_ALLOC_FAIL {
+		array = nih_str_split (NULL, "  ", " ", TRUE);
+
+		if (test_alloc_failed) {
+			TEST_EQ_P (array, NULL);
+			continue;
+		}
+
+		TEST_ALLOC_SIZE (array, sizeof (char *));
+		TEST_EQ_P (array[0], NULL);
+
+		nih_free (array);
+	}
 }
 
 void
