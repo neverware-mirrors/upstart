@@ -116,7 +116,7 @@ clean:
 	dh_testdir
 	rm -f build-stamp
 
-	-$(MAKE) clean distclean
+	-$(MAKE) distclean
 	dh_clean 
 
 
