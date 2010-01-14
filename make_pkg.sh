@@ -11,5 +11,8 @@
 COMMON_SH="$(dirname "$0")/../../../scripts/common.sh"
 . "$COMMON_SH"
 
+# Remove this file to force configure to be rerun even when dirty
+rm -f $(dirname "$0")/config.status
+
 # Make the package
 make_pkg_common "upstart" "$@"
