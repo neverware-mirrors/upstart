@@ -8,6 +8,23 @@ AM_CPPFLAGS = \
 	-I$(top_builddir) -I$(top_srcdir) -iquote$(builddir) -iquote$(srcdir) \
 	-I$(top_srcdir)/intl
 
+if CROSS_COMPILING
+AM_CFLAGS_FOR_BUILD = \
+	$(DBUS_CFLAGS_FOR_BUILD)
+
+# We cannot (easily?) use libtool here, as we would need to create an
+# entirely separate copy of it for the build architecture. Instead, we just
+# rely on .a files, since we don't need to install them.
+COMPILE_FOR_BUILD = $(CC_FOR_BUILD) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) \
+	$(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS_FOR_BUILD) $(CFLAGS_FOR_BUILD)
+LINK_FOR_BUILD = $(CC_FOR_BUILD) $(AM_CFLAGS_FOR_BUILD) $(CFLAGS_FOR_BUILD) \
+	$(AM_LDFLAGS) $(LDFLAGS_FOR_BUILD) -o $@
+
+# TODO: dependencies? assumes that $(CC_FOR_BUILD) supports -c -o
+.c.build-o:
+	$(COMPILE_FOR_BUILD) -c -o $@ $<
+endif
+
 
 manpages = \
 	man/nih-dbus-tool.1
@@ -48,7 +65,34 @@ nih_dbus_tool_LDADD = \
 	../nih/libnih.la \
 	$(LTLIBINTL) \
 	$(EXPAT_LIBS) \
-	$(DBUS_LIBS)
+	$(DBUS_LIBS_FOR_BUILD)
+
+# Oddly, we have to use _SCRIPTS here and write the rules by hand; Automake
+# doesn't like something being a program on one side of a conditional while
+# having an explicit rule to create a symlink on the other.
+noinst_SCRIPTS = nih-dbus-tool-build
+CLEANFILES = $(noinst_SCRIPTS)
+
+if CROSS_COMPILING
+# TODO: requires GNU Make
+nih_dbus_tool_build_BUILDOBJECTS = $(patsubst %.c,%.build-o,$(filter %.c,$(nih_dbus_tool_SOURCES)))
+nih_dbus_tool_build_LINK = $(LINK_FOR_BUILD)
+nih-dbus-tool-build$(EXEEXT): $(nih_dbus_tool_build_BUILDOBJECTS) ../nih-dbus/libnih-dbus-build.a ../nih/libnih-build.a
+	@rm -f nih-dbus-tool-build$(EXEEXT)
+	$(nih_dbus_tool_build_LINK) $(nih_dbus_tool_build_BUILDOBJECTS) \
+		../nih-dbus/libnih-dbus-build.a \
+		../nih/libnih-build.a \
+		$(LIBINTL) \
+		$(EXPAT_LIBS) \
+		$(DBUS_LIBS_FOR_BUILD) \
+		-lrt \
+		$(LIBS)
+
+CLEANFILES += $(nih_dbus_tool_build_BUILDOBJECTS)
+else
+nih-dbus-tool-build$(EXEEXT): nih-dbus-tool$(EXEEXT)
+	$(LN_S) $< $@
+endif
 
 
 TESTS = \
@@ -255,7 +299,7 @@ com_netsplit_Nih_Test_object_OUTPUTS = \
 com_netsplit_Nih_Test_object_XML = \
 	tests/com.netsplit.Nih.Test.xml
 
-$(com_netsplit_Nih_Test_object_OUTPUTS): $(com_netsplit_Nih_Test_object_XML) $(builddir)/nih-dbus-tool
+$(com_netsplit_Nih_Test_object_OUTPUTS): $(com_netsplit_Nih_Test_object_XML) $(builddir)/nih-dbus-tool-build
 	$(MKDIR_P) `echo "$@" | \
 		    sed '/\//!d;s,/[^/]*$$,,' | \
                     sort -u`
@@ -269,7 +313,7 @@ com_netsplit_Nih_Test_proxy_OUTPUTS = \
 com_netsplit_Nih_Test_proxy_XML = \
 	tests/com.netsplit.Nih.Test.xml
 
-$(com_netsplit_Nih_Test_proxy_OUTPUTS): $(com_netsplit_Nih_Test_proxy_XML) $(builddir)/nih-dbus-tool
+$(com_netsplit_Nih_Test_proxy_OUTPUTS): $(com_netsplit_Nih_Test_proxy_XML) $(builddir)/nih-dbus-tool-build
 	$(MKDIR_P) `echo "$@" | \
 		    sed '/\//!d;s,/[^/]*$$,,' | \
                     sort -u`
@@ -365,7 +409,7 @@ tests/property_code.c: $(builddir)/property_factory
 	$(builddir)/property_factory > $@
 
 
-CLEANFILES = \
+CLEANFILES += \
 	$(com_netsplit_Nih_Test_object_OUTPUTS) \
 	$(com_netsplit_Nih_Test_proxy_OUTPUTS) \
 	$(nodist_test_marshal_SOURCES) \

@@ -747,6 +747,15 @@ ac_subst_vars='am__EXEEXT_FALSE
 am__EXEEXT_TRUE
 LTLIBOBJS
 LIBOBJS
+DBUS_LIBS_FOR_BUILD
+DBUS_CFLAGS_FOR_BUILD
+LDFLAGS_FOR_BUILD
+CFLAGS_FOR_BUILD
+RANLIB_FOR_BUILD
+CC_FOR_BUILD
+AR_FOR_BUILD
+CROSS_COMPILING_FALSE
+CROSS_COMPILING_TRUE
 UDEV_LIBS
 UDEV_CFLAGS
 HAVE_VERSION_SCRIPT_ARG_FALSE
@@ -5123,13 +5132,13 @@ if test "${lt_cv_nm_interface+set}" = set; then :
 else
   lt_cv_nm_interface="BSD nm"
   echo "int some_variable = 0;" > conftest.$ac_ext
-  (eval echo "\"\$as_me:5126: $ac_compile\"" >&5)
+  (eval echo "\"\$as_me:5135: $ac_compile\"" >&5)
   (eval "$ac_compile" 2>conftest.err)
   cat conftest.err >&5
-  (eval echo "\"\$as_me:5129: $NM \\\"conftest.$ac_objext\\\"\"" >&5)
+  (eval echo "\"\$as_me:5138: $NM \\\"conftest.$ac_objext\\\"\"" >&5)
   (eval "$NM \"conftest.$ac_objext\"" 2>conftest.err > conftest.out)
   cat conftest.err >&5
-  (eval echo "\"\$as_me:5132: output\"" >&5)
+  (eval echo "\"\$as_me:5141: output\"" >&5)
   cat conftest.out >&5
   if $GREP 'External.*some_variable' conftest.out > /dev/null; then
     lt_cv_nm_interface="MS dumpbin"
@@ -6334,7 +6343,7 @@ ia64-*-hpux*)
   ;;
 *-*-irix6*)
   # Find out which ABI we are using.
-  echo '#line 6337 "configure"' > conftest.$ac_ext
+  echo '#line 6346 "configure"' > conftest.$ac_ext
   if { { eval echo "\"\$as_me\":${as_lineno-$LINENO}: \"$ac_compile\""; } >&5
   (eval $ac_compile) 2>&5
   ac_status=$?
@@ -7596,11 +7605,11 @@ else
    -e 's:.*FLAGS}\{0,1\} :&$lt_compiler_flag :; t' \
    -e 's: [^ ]*conftest\.: $lt_compiler_flag&:; t' \
    -e 's:$: $lt_compiler_flag:'`
-   (eval echo "\"\$as_me:7599: $lt_compile\"" >&5)
+   (eval echo "\"\$as_me:7608: $lt_compile\"" >&5)
    (eval "$lt_compile" 2>conftest.err)
    ac_status=$?
    cat conftest.err >&5
-   echo "$as_me:7603: \$? = $ac_status" >&5
+   echo "$as_me:7612: \$? = $ac_status" >&5
    if (exit $ac_status) && test -s "$ac_outfile"; then
      # The compiler can only warn and ignore the option if not recognized
      # So say no if there are warnings other than the usual output.
@@ -7935,11 +7944,11 @@ else
    -e 's:.*FLAGS}\{0,1\} :&$lt_compiler_flag :; t' \
    -e 's: [^ ]*conftest\.: $lt_compiler_flag&:; t' \
    -e 's:$: $lt_compiler_flag:'`
-   (eval echo "\"\$as_me:7938: $lt_compile\"" >&5)
+   (eval echo "\"\$as_me:7947: $lt_compile\"" >&5)
    (eval "$lt_compile" 2>conftest.err)
    ac_status=$?
    cat conftest.err >&5
-   echo "$as_me:7942: \$? = $ac_status" >&5
+   echo "$as_me:7951: \$? = $ac_status" >&5
    if (exit $ac_status) && test -s "$ac_outfile"; then
      # The compiler can only warn and ignore the option if not recognized
      # So say no if there are warnings other than the usual output.
@@ -8040,11 +8049,11 @@ else
    -e 's:.*FLAGS}\{0,1\} :&$lt_compiler_flag :; t' \
    -e 's: [^ ]*conftest\.: $lt_compiler_flag&:; t' \
    -e 's:$: $lt_compiler_flag:'`
-   (eval echo "\"\$as_me:8043: $lt_compile\"" >&5)
+   (eval echo "\"\$as_me:8052: $lt_compile\"" >&5)
    (eval "$lt_compile" 2>out/conftest.err)
    ac_status=$?
    cat out/conftest.err >&5
-   echo "$as_me:8047: \$? = $ac_status" >&5
+   echo "$as_me:8056: \$? = $ac_status" >&5
    if (exit $ac_status) && test -s out/conftest2.$ac_objext
    then
      # The compiler can only warn and ignore the option if not recognized
@@ -8095,11 +8104,11 @@ else
    -e 's:.*FLAGS}\{0,1\} :&$lt_compiler_flag :; t' \
    -e 's: [^ ]*conftest\.: $lt_compiler_flag&:; t' \
    -e 's:$: $lt_compiler_flag:'`
-   (eval echo "\"\$as_me:8098: $lt_compile\"" >&5)
+   (eval echo "\"\$as_me:8107: $lt_compile\"" >&5)
    (eval "$lt_compile" 2>out/conftest.err)
    ac_status=$?
    cat out/conftest.err >&5
-   echo "$as_me:8102: \$? = $ac_status" >&5
+   echo "$as_me:8111: \$? = $ac_status" >&5
    if (exit $ac_status) && test -s out/conftest2.$ac_objext
    then
      # The compiler can only warn and ignore the option if not recognized
@@ -10478,7 +10487,7 @@ else
   lt_dlunknown=0; lt_dlno_uscore=1; lt_dlneed_uscore=2
   lt_status=$lt_dlunknown
   cat > conftest.$ac_ext <<_LT_EOF
-#line 10481 "configure"
+#line 10490 "configure"
 #include "confdefs.h"
 
 #if HAVE_DLFCN_H
@@ -10574,7 +10583,7 @@ else
   lt_dlunknown=0; lt_dlno_uscore=1; lt_dlneed_uscore=2
   lt_status=$lt_dlunknown
   cat > conftest.$ac_ext <<_LT_EOF
-#line 10577 "configure"
+#line 10586 "configure"
 #include "confdefs.h"
 
 #if HAVE_DLFCN_H
@@ -16663,11 +16672,11 @@ done
 	      if test -z "$NIH_DBUS_TOOL"; then :
   { $as_echo "$as_me:${as_lineno-$LINENO}: WARNING: nih-dbus-tool not found, but you are cross-compiling.  Using built copy, which is probably not what you want.  Set NIH_DBUS_TOOL maybe?" >&5
 $as_echo "$as_me: WARNING: nih-dbus-tool not found, but you are cross-compiling.  Using built copy, which is probably not what you want.  Set NIH_DBUS_TOOL maybe?" >&2;}
-		     NIH_DBUS_TOOL="\${top_builddir}/nih-dbus-tool/nih-dbus-tool"
+		     NIH_DBUS_TOOL="\${top_builddir}/nih-dbus-tool/nih-dbus-tool-build"
 
 fi
 else
-  NIH_DBUS_TOOL="\${top_builddir}/nih-dbus-tool/nih-dbus-tool"
+  NIH_DBUS_TOOL="\${top_builddir}/nih-dbus-tool/nih-dbus-tool-build"
 
 fi
 fi
@@ -17147,6 +17156,37 @@ $as_echo "yes" >&6; }
 fi
 
 
+ if test "x$cross_compiling" = xyes; then
+  CROSS_COMPILING_TRUE=
+  CROSS_COMPILING_FALSE='#'
+else
+  CROSS_COMPILING_TRUE='#'
+  CROSS_COMPILING_FALSE=
+fi
+
+if test "x$cross_compiling" = xyes; then
+	AR_FOR_BUILD=${AR_FOR_BUILD-ar}
+	CC_FOR_BUILD=${CC_FOR_BUILD-gcc -std=gnu99}
+	RANLIB_FOR_BUILD=${RANLIB_FOR_BUILD-ranlib}
+
+	DBUS_CFLAGS_FOR_BUILD=`unset PKG_CONFIG_LIBDIR; pkg-config --cflags 'dbus-1 >= 1.2.16'`
+	DBUS_LIBS_FOR_BUILD=`unset PKG_CONFIG_LIBDIR; pkg-config --libs 'dbus-1 >= 1.2.16'`
+else
+	AR_FOR_BUILD="\$(AR)"
+	CC_FOR_BUILD="\$(CC)"
+	RANLIB_FOR_BUILD="\$(RANLIB)"
+	CFLAGS_FOR_BUILD=${CFLAGS_FOR_BUILD-$CFLAGS}
+	LDFLAGS_FOR_BUILD=${LDFLAGS_FOR_BUILD-$LDFLAGS}
+fi
+
+
+
+
+
+
+
+
+
 ac_config_files="$ac_config_files Makefile m4/Makefile intl/Makefile nih/Makefile nih-dbus/Makefile nih-dbus-tool/Makefile dbus/Makefile init/Makefile util/Makefile udev/Makefile conf/Makefile doc/Makefile contrib/Makefile po/Makefile.in"
 
 ac_config_headers="$ac_config_headers config.h"
@@ -17274,6 +17314,10 @@ Usually this means the macro was only invoked conditionally." "$LINENO" 5
 fi
 if test -z "${HAVE_VERSION_SCRIPT_ARG_TRUE}" && test -z "${HAVE_VERSION_SCRIPT_ARG_FALSE}"; then
   as_fn_error "conditional \"HAVE_VERSION_SCRIPT_ARG\" was never defined.
+Usually this means the macro was only invoked conditionally." "$LINENO" 5
+fi
+if test -z "${CROSS_COMPILING_TRUE}" && test -z "${CROSS_COMPILING_FALSE}"; then
+  as_fn_error "conditional \"CROSS_COMPILING\" was never defined.
 Usually this means the macro was only invoked conditionally." "$LINENO" 5
 fi
 

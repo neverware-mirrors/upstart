@@ -15,6 +15,7 @@
 
 @SET_MAKE@
 
+
 VPATH = @srcdir@
 pkgdatadir = $(datadir)/@PACKAGE@
 pkgincludedir = $(includedir)/@PACKAGE@
@@ -36,6 +37,7 @@ build_triplet = @build@
 host_triplet = @host@
 @INSTALL_NIH_TRUE@bin_PROGRAMS = nih-dbus-tool$(EXEEXT)
 @INSTALL_NIH_FALSE@noinst_PROGRAMS = nih-dbus-tool$(EXEEXT)
+@CROSS_COMPILING_TRUE@am__append_1 = $(nih_dbus_tool_build_BUILDOBJECTS)
 TESTS = test_main$(EXEEXT) test_symbol$(EXEEXT) test_indent$(EXEEXT) \
 	test_type$(EXEEXT) test_marshal$(EXEEXT) \
 	test_demarshal$(EXEEXT) test_node$(EXEEXT) \
@@ -316,6 +318,7 @@ test_type_DEPENDENCIES = type.o indent.o symbol.o ../nih/libnih.la \
 test_type_LINK = $(LIBTOOL) --tag=CC $(AM_LIBTOOLFLAGS) \
 	$(LIBTOOLFLAGS) --mode=link $(CCLD) $(AM_CFLAGS) $(CFLAGS) \
 	$(test_type_LDFLAGS) $(LDFLAGS) -o $@
+SCRIPTS = $(noinst_SCRIPTS)
 DEFAULT_INCLUDES = 
 depcomp = $(SHELL) $(top_srcdir)/depcomp
 am__depfiles_maybe = depfiles
@@ -395,6 +398,7 @@ ACLOCAL = @ACLOCAL@
 ALLOCA = @ALLOCA@
 AMTAR = @AMTAR@
 AR = @AR@
+AR_FOR_BUILD = @AR_FOR_BUILD@
 AUTOCONF = @AUTOCONF@
 AUTOHEADER = @AUTOHEADER@
 AUTOMAKE = @AUTOMAKE@
@@ -403,14 +407,18 @@ BUILD_INCLUDED_LIBINTL = @BUILD_INCLUDED_LIBINTL@
 CATOBJEXT = @CATOBJEXT@
 CC = @CC@
 CCDEPMODE = @CCDEPMODE@
+CC_FOR_BUILD = @CC_FOR_BUILD@
 CFLAGS = @CFLAGS@
+CFLAGS_FOR_BUILD = @CFLAGS_FOR_BUILD@
 CFLAG_VISIBILITY = @CFLAG_VISIBILITY@
 CPP = @CPP@
 CPPFLAGS = @CPPFLAGS@
 CYGPATH_W = @CYGPATH_W@
 DATADIRNAME = @DATADIRNAME@
 DBUS_CFLAGS = @DBUS_CFLAGS@
+DBUS_CFLAGS_FOR_BUILD = @DBUS_CFLAGS_FOR_BUILD@
 DBUS_LIBS = @DBUS_LIBS@
+DBUS_LIBS_FOR_BUILD = @DBUS_LIBS_FOR_BUILD@
 DEFS = @DEFS@
 DEPDIR = @DEPDIR@
 DSYMUTIL = @DSYMUTIL@
@@ -446,6 +454,7 @@ INTL_LIBTOOL_SUFFIX_PREFIX = @INTL_LIBTOOL_SUFFIX_PREFIX@
 INTL_MACOSX_LIBS = @INTL_MACOSX_LIBS@
 LD = @LD@
 LDFLAGS = @LDFLAGS@
+LDFLAGS_FOR_BUILD = @LDFLAGS_FOR_BUILD@
 LIBICONV = @LIBICONV@
 LIBINTL = @LIBINTL@
 LIBMULTITHREAD = @LIBMULTITHREAD@
@@ -487,6 +496,7 @@ PKG_CONFIG = @PKG_CONFIG@
 POSUB = @POSUB@
 PRI_MACROS_BROKEN = @PRI_MACROS_BROKEN@
 RANLIB = @RANLIB@
+RANLIB_FOR_BUILD = @RANLIB_FOR_BUILD@
 SED = @SED@
 SET_MAKE = @SET_MAKE@
 SHELL = @SHELL@
@@ -559,6 +569,19 @@ AM_CPPFLAGS = \
 	-DLOCALEDIR="\"$(localedir)\"" \
 	-I$(top_builddir) -I$(top_srcdir) -iquote$(builddir) -iquote$(srcdir) \
 	-I$(top_srcdir)/intl
+
+@CROSS_COMPILING_TRUE@AM_CFLAGS_FOR_BUILD = \
+@CROSS_COMPILING_TRUE@	$(DBUS_CFLAGS_FOR_BUILD)
+
+
+# We cannot (easily?) use libtool here, as we would need to create an
+# entirely separate copy of it for the build architecture. Instead, we just
+# rely on .a files, since we don't need to install them.
+@CROSS_COMPILING_TRUE@COMPILE_FOR_BUILD = $(CC_FOR_BUILD) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) \
+@CROSS_COMPILING_TRUE@	$(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS_FOR_BUILD) $(CFLAGS_FOR_BUILD)
+
+@CROSS_COMPILING_TRUE@LINK_FOR_BUILD = $(CC_FOR_BUILD) $(AM_CFLAGS_FOR_BUILD) $(CFLAGS_FOR_BUILD) \
+@CROSS_COMPILING_TRUE@	$(AM_LDFLAGS) $(LDFLAGS_FOR_BUILD) -o $@
 
 manpages = \
 	man/nih-dbus-tool.1
@@ -680,8 +703,24 @@ nih_dbus_tool_LDADD = \
 	../nih/libnih.la \
 	$(LTLIBINTL) \
 	$(EXPAT_LIBS) \
-	$(DBUS_LIBS)
+	$(DBUS_LIBS_FOR_BUILD)
 
+
+# Oddly, we have to use _SCRIPTS here and write the rules by hand; Automake
+# doesn't like something being a program on one side of a conditional while
+# having an explicit rule to create a symlink on the other.
+noinst_SCRIPTS = nih-dbus-tool-build
+CLEANFILES = $(noinst_SCRIPTS) $(am__append_1) \
+	$(com_netsplit_Nih_Test_object_OUTPUTS) \
+	$(com_netsplit_Nih_Test_proxy_OUTPUTS) \
+	$(nodist_test_marshal_SOURCES) \
+	$(nodist_test_demarshal_SOURCES) \
+	$(nodist_test_interface_SOURCES) $(nodist_test_method_SOURCES) \
+	$(nodist_test_signal_SOURCES) $(nodist_test_property_SOURCES)
+
+# TODO: requires GNU Make
+@CROSS_COMPILING_TRUE@nih_dbus_tool_build_BUILDOBJECTS = $(patsubst %.c,%.build-o,$(filter %.c,$(nih_dbus_tool_SOURCES)))
+@CROSS_COMPILING_TRUE@nih_dbus_tool_build_LINK = $(LINK_FOR_BUILD)
 test_main_SOURCES = tests/test_main.c main.c
 test_main_CFLAGS = $(AM_CFLAGS) -DTEST
 test_main_LDFLAGS = -static
@@ -937,21 +976,11 @@ property_factory_LDADD = \
 	$(EXPAT_LIBS) \
 	$(DBUS_LIBS)
 
-CLEANFILES = \
-	$(com_netsplit_Nih_Test_object_OUTPUTS) \
-	$(com_netsplit_Nih_Test_proxy_OUTPUTS) \
-	$(nodist_test_marshal_SOURCES) \
-	$(nodist_test_demarshal_SOURCES) \
-	$(nodist_test_interface_SOURCES) \
-	$(nodist_test_method_SOURCES) \
-	$(nodist_test_signal_SOURCES) \
-	$(nodist_test_property_SOURCES)
-
 all: $(BUILT_SOURCES)
 	$(MAKE) $(AM_MAKEFLAGS) all-am
 
 .SUFFIXES:
-.SUFFIXES: .c .lo .o .obj
+.SUFFIXES: .build-o .c .lo .o .obj
 $(srcdir)/Makefile.in:  $(srcdir)/Makefile.am  $(am__configure_deps)
 	@for dep in $?; do \
 	  case '$(am__configure_deps)' in \
@@ -1890,7 +1919,7 @@ check-am: all-am
 	$(MAKE) $(AM_MAKEFLAGS) check-TESTS
 check: $(BUILT_SOURCES)
 	$(MAKE) $(AM_MAKEFLAGS) check-am
-all-am: Makefile $(PROGRAMS) $(MANS)
+all-am: Makefile $(PROGRAMS) $(SCRIPTS) $(MANS)
 installdirs:
 	for dir in "$(DESTDIR)$(bindir)" "$(DESTDIR)$(man1dir)"; do \
 	  test -z "$$dir" || $(MKDIR_P) "$$dir"; \
@@ -2016,13 +2045,29 @@ uninstall-man: uninstall-man1
 	uninstall-binPROGRAMS uninstall-man uninstall-man1
 
 
-$(com_netsplit_Nih_Test_object_OUTPUTS): $(com_netsplit_Nih_Test_object_XML) $(builddir)/nih-dbus-tool
+# TODO: dependencies? assumes that $(CC_FOR_BUILD) supports -c -o
+@CROSS_COMPILING_TRUE@.c.build-o:
+@CROSS_COMPILING_TRUE@	$(COMPILE_FOR_BUILD) -c -o $@ $<
+@CROSS_COMPILING_TRUE@nih-dbus-tool-build$(EXEEXT): $(nih_dbus_tool_build_BUILDOBJECTS) ../nih-dbus/libnih-dbus-build.a ../nih/libnih-build.a
+@CROSS_COMPILING_TRUE@	@rm -f nih-dbus-tool-build$(EXEEXT)
+@CROSS_COMPILING_TRUE@	$(nih_dbus_tool_build_LINK) $(nih_dbus_tool_build_BUILDOBJECTS) \
+@CROSS_COMPILING_TRUE@		../nih-dbus/libnih-dbus-build.a \
+@CROSS_COMPILING_TRUE@		../nih/libnih-build.a \
+@CROSS_COMPILING_TRUE@		$(LIBINTL) \
+@CROSS_COMPILING_TRUE@		$(EXPAT_LIBS) \
+@CROSS_COMPILING_TRUE@		$(DBUS_LIBS_FOR_BUILD) \
+@CROSS_COMPILING_TRUE@		-lrt \
+@CROSS_COMPILING_TRUE@		$(LIBS)
+@CROSS_COMPILING_FALSE@nih-dbus-tool-build$(EXEEXT): nih-dbus-tool$(EXEEXT)
+@CROSS_COMPILING_FALSE@	$(LN_S) $< $@
+
+$(com_netsplit_Nih_Test_object_OUTPUTS): $(com_netsplit_Nih_Test_object_XML) $(builddir)/nih-dbus-tool-build
 	$(MKDIR_P) `echo "$@" | \
 		    sed '/\//!d;s,/[^/]*$$,,' | \
                     sort -u`
 	$(NIH_DBUS_TOOL) --mode=object --prefix=my --output=$@ $<
 
-$(com_netsplit_Nih_Test_proxy_OUTPUTS): $(com_netsplit_Nih_Test_proxy_XML) $(builddir)/nih-dbus-tool
+$(com_netsplit_Nih_Test_proxy_OUTPUTS): $(com_netsplit_Nih_Test_proxy_XML) $(builddir)/nih-dbus-tool-build
 	$(MKDIR_P) `echo "$@" | \
 		    sed '/\//!d;s,/[^/]*$$,,' | \
                     sort -u`

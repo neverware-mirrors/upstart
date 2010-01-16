@@ -209,6 +209,7 @@ ACLOCAL = @ACLOCAL@
 ALLOCA = @ALLOCA@
 AMTAR = @AMTAR@
 AR = @AR@
+AR_FOR_BUILD = @AR_FOR_BUILD@
 AUTOCONF = @AUTOCONF@
 AUTOHEADER = @AUTOHEADER@
 AUTOMAKE = @AUTOMAKE@
@@ -217,14 +218,18 @@ BUILD_INCLUDED_LIBINTL = @BUILD_INCLUDED_LIBINTL@
 CATOBJEXT = @CATOBJEXT@
 CC = @CC@
 CCDEPMODE = @CCDEPMODE@
+CC_FOR_BUILD = @CC_FOR_BUILD@
 CFLAGS = @CFLAGS@
+CFLAGS_FOR_BUILD = @CFLAGS_FOR_BUILD@
 CFLAG_VISIBILITY = @CFLAG_VISIBILITY@
 CPP = @CPP@
 CPPFLAGS = @CPPFLAGS@
 CYGPATH_W = @CYGPATH_W@
 DATADIRNAME = @DATADIRNAME@
 DBUS_CFLAGS = @DBUS_CFLAGS@
+DBUS_CFLAGS_FOR_BUILD = @DBUS_CFLAGS_FOR_BUILD@
 DBUS_LIBS = @DBUS_LIBS@
+DBUS_LIBS_FOR_BUILD = @DBUS_LIBS_FOR_BUILD@
 DEFS = @DEFS@
 DEPDIR = @DEPDIR@
 DSYMUTIL = @DSYMUTIL@
@@ -260,6 +265,7 @@ INTL_LIBTOOL_SUFFIX_PREFIX = @INTL_LIBTOOL_SUFFIX_PREFIX@
 INTL_MACOSX_LIBS = @INTL_MACOSX_LIBS@
 LD = @LD@
 LDFLAGS = @LDFLAGS@
+LDFLAGS_FOR_BUILD = @LDFLAGS_FOR_BUILD@
 LIBICONV = @LIBICONV@
 LIBINTL = @LIBINTL@
 LIBMULTITHREAD = @LIBMULTITHREAD@
@@ -301,6 +307,7 @@ PKG_CONFIG = @PKG_CONFIG@
 POSUB = @POSUB@
 PRI_MACROS_BROKEN = @PRI_MACROS_BROKEN@
 RANLIB = @RANLIB@
+RANLIB_FOR_BUILD = @RANLIB_FOR_BUILD@
 SED = @SED@
 SET_MAKE = @SET_MAKE@
 SHELL = @SHELL@
@@ -1167,17 +1174,17 @@ uninstall-man: uninstall-man7 uninstall-man8
 	uninstall-man8 uninstall-sbinPROGRAMS
 
 
-$(com_ubuntu_Upstart_OUTPUTS): $(com_ubuntu_Upstart_XML) $(top_builddir)/nih-dbus-tool/nih-dbus-tool
+$(com_ubuntu_Upstart_OUTPUTS): $(com_ubuntu_Upstart_XML) $(top_builddir)/nih-dbus-tool/nih-dbus-tool-build
 	$(NIH_DBUS_TOOL) \
 		--mode=proxy --prefix=upstart --default-interface=com.ubuntu.Upstart0_6 \
 		--output=$@ $<
 
-$(com_ubuntu_Upstart_Job_OUTPUTS): $(com_ubuntu_Upstart_Job_XML) $(top_builddir)/nih-dbus-tool/nih-dbus-tool
+$(com_ubuntu_Upstart_Job_OUTPUTS): $(com_ubuntu_Upstart_Job_XML) $(top_builddir)/nih-dbus-tool/nih-dbus-tool-build
 	$(NIH_DBUS_TOOL) \
 		--mode=proxy --prefix=job_class --default-interface=com.ubuntu.Upstart0_6.Job \
 		--output=$@ $<
 
-$(com_ubuntu_Upstart_Instance_OUTPUTS): $(com_ubuntu_Upstart_Instance_XML) $(top_builddir)/nih-dbus-tool/nih-dbus-tool
+$(com_ubuntu_Upstart_Instance_OUTPUTS): $(com_ubuntu_Upstart_Instance_XML) $(top_builddir)/nih-dbus-tool/nih-dbus-tool-build
 	$(NIH_DBUS_TOOL) \
 		--mode=proxy --prefix=job --default-interface=com.ubuntu.Upstart0_6.Instance \
 		--output=$@ $<

@@ -8,9 +8,27 @@ AM_CPPFLAGS = \
 	-I$(top_builddir) -I$(top_srcdir) \
 	-I$(top_srcdir)/intl
 
+if CROSS_COMPILING
+AM_CFLAGS_FOR_BUILD = \
+	$(DBUS_CFLAGS_FOR_BUILD)
+
+# We cannot (easily?) use libtool here, as we would need to create an
+# entirely separate copy of it for the build architecture. Instead, we just
+# rely on .a files, since we don't need to install them.
+COMPILE_FOR_BUILD = $(CC_FOR_BUILD) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) \
+	$(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS_FOR_BUILD) $(CFLAGS_FOR_BUILD)
+LINK_FOR_BUILD = $(CC_FOR_BUILD) $(AM_CFLAGS_FOR_BUILD) $(CFLAGS_FOR_BUILD) \
+	$(AM_LDFLAGS) $(LDFLAGS_FOR_BUILD) -o $@
+
+# TODO: dependencies? assumes that $(CC_FOR_BUILD) supports -c -o
+.c.build-o:
+	$(COMPILE_FOR_BUILD) -c -o $@ $<
+endif
+
 
 if INSTALL_NIH
 lib_LTLIBRARIES = libnih-dbus.la
+noinst_LTLIBRARIES =
 else
 noinst_LTLIBRARIES = libnih-dbus.la
 endif
@@ -36,6 +54,21 @@ libnih_dbus_la_LIBADD = \
 	../nih/libnih.la \
 	$(DBUS_LIBS) \
 	-lrt
+
+if CROSS_COMPILING
+noinst_LIBRARIES = libnih-dbus-build.a
+
+# TODO: requires GNU Make
+libnih_dbus_build_a_BUILDOBJECTS = $(patsubst %.c,%.build-o,$(filter %.c,$(libnih_dbus_la_SOURCES)))
+libnih_dbus_build_a_AR = $(AR_FOR_BUILD) $(ARFLAGS)
+libnih_dbus_build_a_LINK = $(LINK_FOR_BUILD)
+libnih-dbus-build.a: $(libnih_dbus_build_a_BUILDOBJECTS)
+	@-rm -f libnih-dbus-build.a
+	$(libnih_dbus_build_a_AR) libnih-dbus-build.a $(libnih_dbus_build_a_BUILDOBJECTS)
+	@$(RANLIB_FOR_BUILD) libnih-dbus-build.a
+
+CLEANFILES = $(libnih_dbus_build_a_BUILDOBJECTS)
+endif
 
 
 EXTRA_DIST = libnih-dbus.ver libnih-dbus.supp

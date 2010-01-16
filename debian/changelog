@@ -1,6 +1,7 @@
 upstart (0.6.3-11-chromeos1) karmic; urgency=low
 
   * Forking for Chrome OS.  Adding support for performance logging.
+  * Support cross-compiling.
 
  -- The Chromium OS Authors <chromium-os-dev@googlegroups.com>  Mon, 04 Jan 2010 17:54:11 -0800
 

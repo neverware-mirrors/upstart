@@ -5,6 +5,20 @@ AM_CPPFLAGS = \
 	-I$(top_builddir) -I$(top_srcdir) \
 	-I$(top_srcdir)/intl
 
+if CROSS_COMPILING
+# We cannot (easily?) use libtool here, as we would need to create an
+# entirely separate copy of it for the build architecture. Instead, we just
+# rely on .a files, since we don't need to install them.
+COMPILE_FOR_BUILD = $(CC_FOR_BUILD) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) \
+	$(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS_FOR_BUILD)
+LINK_FOR_BUILD = $(CC_FOR_BUILD) $(AM_CFLAGS) $(CFLAGS_FOR_BUILD) \
+	$(AM_LDFLAGS) $(LDFLAGS_FOR_BUILD) -o $@
+
+# TODO: dependencies? assumes that $(CC_FOR_BUILD) supports -c -o
+.c.build-o:
+	$(COMPILE_FOR_BUILD) -c -o $@ $<
+endif
+
 
 libraries = libnih.la
 
@@ -43,6 +57,21 @@ endif
 endif
 
 libnih_la_LIBADD = -lrt
+
+if CROSS_COMPILING
+noinst_LIBRARIES = libnih-build.a
+
+# TODO: requires GNU Make
+libnih_build_a_BUILDOBJECTS = $(patsubst %.c,%.build-o,$(filter %.c,$(libnih_la_SOURCES)))
+libnih_build_a_AR = $(AR_FOR_BUILD) $(ARFLAGS)
+libnih_build_a_LINK = $(LINK_FOR_BUILD)
+libnih-build.a: $(libnih_build_a_BUILDOBJECTS)
+	@-rm -f libnih-build.a
+	$(libnih_build_a_AR) libnih-build.a $(libnih_build_a_BUILDOBJECTS)
+	@$(RANLIB_FOR_BUILD) libnih-build.a
+
+CLEANFILES = $(libnih_build_a_BUILDOBJECTS)
+endif
 
 
 EXTRA_DIST = libnih.ver libnih.supp

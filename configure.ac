@@ -47,6 +47,34 @@ esac
 PKG_CHECK_MODULES([UDEV], [libudev >= 146])
 
 
+AM_CONDITIONAL(CROSS_COMPILING, test "x$cross_compiling" = xyes)
+if test "x$cross_compiling" = xyes; then
+	AR_FOR_BUILD=${AR_FOR_BUILD-ar}
+	CC_FOR_BUILD=${CC_FOR_BUILD-gcc -std=gnu99}
+	RANLIB_FOR_BUILD=${RANLIB_FOR_BUILD-ranlib}
+	dnl This is unfortunately specific to the way dpkg-buildpackage
+	dnl overrides pkg-config's library path, which makes it hard for
+	dnl this patch to go upstream. In future we should have a
+	dnl ${host}-pkg-config instead.
+	m4_pattern_allow([^PKG_CONFIG_LIBDIR$])
+	DBUS_CFLAGS_FOR_BUILD=`unset PKG_CONFIG_LIBDIR; pkg-config --cflags 'dbus-1 >= 1.2.16'`
+	DBUS_LIBS_FOR_BUILD=`unset PKG_CONFIG_LIBDIR; pkg-config --libs 'dbus-1 >= 1.2.16'`
+else
+	AR_FOR_BUILD="\$(AR)"
+	CC_FOR_BUILD="\$(CC)"
+	RANLIB_FOR_BUILD="\$(RANLIB)"
+	CFLAGS_FOR_BUILD=${CFLAGS_FOR_BUILD-$CFLAGS}
+	LDFLAGS_FOR_BUILD=${LDFLAGS_FOR_BUILD-$LDFLAGS}
+fi
+AC_SUBST(AR_FOR_BUILD)
+AC_SUBST(CC_FOR_BUILD)
+AC_SUBST(RANLIB_FOR_BUILD)
+AC_SUBST(CFLAGS_FOR_BUILD)
+AC_SUBST(LDFLAGS_FOR_BUILD)
+AC_SUBST(DBUS_CFLAGS_FOR_BUILD)
+AC_SUBST(DBUS_LIBS_FOR_BUILD)
+
+
 AC_CONFIG_FILES([ Makefile m4/Makefile intl/Makefile
 		  nih/Makefile nih-dbus/Makefile nih-dbus-tool/Makefile
 		  dbus/Makefile init/Makefile util/Makefile udev/Makefile conf/Makefile

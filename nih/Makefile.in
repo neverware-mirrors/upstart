@@ -16,6 +16,7 @@
 @SET_MAKE@
 
 
+
 VPATH = @srcdir@
 pkgdatadir = $(datadir)/@PACKAGE@
 pkgincludedir = $(includedir)/@PACKAGE@
@@ -75,6 +76,11 @@ mkinstalldirs = $(install_sh) -d
 CONFIG_HEADER = $(top_builddir)/config.h
 CONFIG_CLEAN_FILES =
 CONFIG_CLEAN_VPATH_FILES =
+LIBRARIES = $(noinst_LIBRARIES)
+ARFLAGS = cru
+libnih_build_a_LIBADD =
+libnih_build_a_SOURCES = libnih-build.c
+libnih_build_a_OBJECTS = libnih-build.$(OBJEXT)
 am__vpath_adj_setup = srcdirstrip=`echo "$(srcdir)" | sed 's|.|.|g'`;
 am__vpath_adj = case $$p in \
     $(srcdir)/*) f=`echo "$$p" | sed "s|^$$srcdirstrip/||"`;; \
@@ -230,7 +236,7 @@ CCLD = $(CC)
 LINK = $(LIBTOOL) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) \
 	--mode=link $(CCLD) $(AM_CFLAGS) $(CFLAGS) $(AM_LDFLAGS) \
 	$(LDFLAGS) -o $@
-SOURCES = $(libnih_la_SOURCES) $(test_alloc_SOURCES) \
+SOURCES = libnih-build.c $(libnih_la_SOURCES) $(test_alloc_SOURCES) \
 	$(test_child_SOURCES) $(test_command_SOURCES) \
 	$(test_config_SOURCES) $(test_error_SOURCES) \
 	$(test_file_SOURCES) $(test_hash_SOURCES) $(test_io_SOURCES) \
@@ -239,15 +245,15 @@ SOURCES = $(libnih_la_SOURCES) $(test_alloc_SOURCES) \
 	$(test_signal_SOURCES) $(test_string_SOURCES) \
 	$(test_timer_SOURCES) $(test_tree_SOURCES) \
 	$(test_watch_SOURCES)
-DIST_SOURCES = $(libnih_la_SOURCES) $(test_alloc_SOURCES) \
-	$(test_child_SOURCES) $(test_command_SOURCES) \
-	$(test_config_SOURCES) $(test_error_SOURCES) \
-	$(test_file_SOURCES) $(test_hash_SOURCES) $(test_io_SOURCES) \
-	$(test_list_SOURCES) $(test_logging_SOURCES) \
-	$(test_main_SOURCES) $(test_option_SOURCES) \
-	$(test_signal_SOURCES) $(test_string_SOURCES) \
-	$(test_timer_SOURCES) $(test_tree_SOURCES) \
-	$(test_watch_SOURCES)
+DIST_SOURCES = libnih-build.c $(libnih_la_SOURCES) \
+	$(test_alloc_SOURCES) $(test_child_SOURCES) \
+	$(test_command_SOURCES) $(test_config_SOURCES) \
+	$(test_error_SOURCES) $(test_file_SOURCES) \
+	$(test_hash_SOURCES) $(test_io_SOURCES) $(test_list_SOURCES) \
+	$(test_logging_SOURCES) $(test_main_SOURCES) \
+	$(test_option_SOURCES) $(test_signal_SOURCES) \
+	$(test_string_SOURCES) $(test_timer_SOURCES) \
+	$(test_tree_SOURCES) $(test_watch_SOURCES)
 am__include_HEADERS_DIST = libnih.h
 am__nihinclude_HEADERS_DIST = macros.h alloc.h string.h list.h hash.h \
 	tree.h timer.h signal.h child.h io.h file.h watch.h main.h \
@@ -264,6 +270,7 @@ ACLOCAL = @ACLOCAL@
 ALLOCA = @ALLOCA@
 AMTAR = @AMTAR@
 AR = @AR@
+AR_FOR_BUILD = @AR_FOR_BUILD@
 AUTOCONF = @AUTOCONF@
 AUTOHEADER = @AUTOHEADER@
 AUTOMAKE = @AUTOMAKE@
@@ -272,14 +279,18 @@ BUILD_INCLUDED_LIBINTL = @BUILD_INCLUDED_LIBINTL@
 CATOBJEXT = @CATOBJEXT@
 CC = @CC@
 CCDEPMODE = @CCDEPMODE@
+CC_FOR_BUILD = @CC_FOR_BUILD@
 CFLAGS = @CFLAGS@
+CFLAGS_FOR_BUILD = @CFLAGS_FOR_BUILD@
 CFLAG_VISIBILITY = @CFLAG_VISIBILITY@
 CPP = @CPP@
 CPPFLAGS = @CPPFLAGS@
 CYGPATH_W = @CYGPATH_W@
 DATADIRNAME = @DATADIRNAME@
 DBUS_CFLAGS = @DBUS_CFLAGS@
+DBUS_CFLAGS_FOR_BUILD = @DBUS_CFLAGS_FOR_BUILD@
 DBUS_LIBS = @DBUS_LIBS@
+DBUS_LIBS_FOR_BUILD = @DBUS_LIBS_FOR_BUILD@
 DEFS = @DEFS@
 DEPDIR = @DEPDIR@
 DSYMUTIL = @DSYMUTIL@
@@ -315,6 +326,7 @@ INTL_LIBTOOL_SUFFIX_PREFIX = @INTL_LIBTOOL_SUFFIX_PREFIX@
 INTL_MACOSX_LIBS = @INTL_MACOSX_LIBS@
 LD = @LD@
 LDFLAGS = @LDFLAGS@
+LDFLAGS_FOR_BUILD = @LDFLAGS_FOR_BUILD@
 LIBICONV = @LIBICONV@
 LIBINTL = @LIBINTL@
 LIBMULTITHREAD = @LIBMULTITHREAD@
@@ -356,6 +368,7 @@ PKG_CONFIG = @PKG_CONFIG@
 POSUB = @POSUB@
 PRI_MACROS_BROKEN = @PRI_MACROS_BROKEN@
 RANLIB = @RANLIB@
+RANLIB_FOR_BUILD = @RANLIB_FOR_BUILD@
 SED = @SED@
 SET_MAKE = @SET_MAKE@
 SHELL = @SHELL@
@@ -426,6 +439,16 @@ AM_CPPFLAGS = \
 	-I$(top_builddir) -I$(top_srcdir) \
 	-I$(top_srcdir)/intl
 
+
+# We cannot (easily?) use libtool here, as we would need to create an
+# entirely separate copy of it for the build architecture. Instead, we just
+# rely on .a files, since we don't need to install them.
+@CROSS_COMPILING_TRUE@COMPILE_FOR_BUILD = $(CC_FOR_BUILD) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) \
+@CROSS_COMPILING_TRUE@	$(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS_FOR_BUILD)
+
+@CROSS_COMPILING_TRUE@LINK_FOR_BUILD = $(CC_FOR_BUILD) $(AM_CFLAGS) $(CFLAGS_FOR_BUILD) \
+@CROSS_COMPILING_TRUE@	$(AM_LDFLAGS) $(LDFLAGS_FOR_BUILD) -o $@
+
 libraries = libnih.la
 @INSTALL_NIH_TRUE@lib_LTLIBRARIES = $(libraries)
 @INSTALL_NIH_FALSE@noinst_LTLIBRARIES = $(libraries)
@@ -451,6 +474,13 @@ libnih_la_SOURCES = \
 @INSTALL_NIH_TRUE@libnih_la_LDFLAGS = -version-info 0:0:0 \
 @INSTALL_NIH_TRUE@	$(am__append_1)
 libnih_la_LIBADD = -lrt
+@CROSS_COMPILING_TRUE@noinst_LIBRARIES = libnih-build.a
+
+# TODO: requires GNU Make
+@CROSS_COMPILING_TRUE@libnih_build_a_BUILDOBJECTS = $(patsubst %.c,%.build-o,$(filter %.c,$(libnih_la_SOURCES)))
+@CROSS_COMPILING_TRUE@libnih_build_a_AR = $(AR_FOR_BUILD) $(ARFLAGS)
+@CROSS_COMPILING_TRUE@libnih_build_a_LINK = $(LINK_FOR_BUILD)
+@CROSS_COMPILING_TRUE@CLEANFILES = $(libnih_build_a_BUILDOBJECTS)
 EXTRA_DIST = libnih.ver libnih.supp
 @INSTALL_NIH_TRUE@include_HEADERS = \
 @INSTALL_NIH_TRUE@	libnih.h
@@ -540,7 +570,7 @@ test_error_LDADD = libnih.la
 all: all-am
 
 .SUFFIXES:
-.SUFFIXES: .c .lo .o .obj
+.SUFFIXES: .build-o .c .lo .o .obj
 $(srcdir)/Makefile.in:  $(srcdir)/Makefile.am  $(am__configure_deps)
 	@for dep in $?; do \
 	  case '$(am__configure_deps)' in \
@@ -571,6 +601,13 @@ $(top_srcdir)/configure:  $(am__configure_deps)
 $(ACLOCAL_M4):  $(am__aclocal_m4_deps)
 	cd $(top_builddir) && $(MAKE) $(AM_MAKEFLAGS) am--refresh
 $(am__aclocal_m4_deps):
+
+clean-noinstLIBRARIES:
+	-test -z "$(noinst_LIBRARIES)" || rm -f $(noinst_LIBRARIES)
+@CROSS_COMPILING_FALSE@libnih-build.a: $(libnih_build_a_OBJECTS) $(libnih_build_a_DEPENDENCIES) 
+@CROSS_COMPILING_FALSE@	-rm -f libnih-build.a
+@CROSS_COMPILING_FALSE@	$(libnih_build_a_AR) libnih-build.a $(libnih_build_a_OBJECTS) $(libnih_build_a_LIBADD)
+@CROSS_COMPILING_FALSE@	$(RANLIB) libnih-build.a
 install-libLTLIBRARIES: $(lib_LTLIBRARIES)
 	@$(NORMAL_INSTALL)
 	test -z "$(libdir)" || $(MKDIR_P) "$(DESTDIR)$(libdir)"
@@ -688,6 +725,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/file.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/hash.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/io.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libnih-build.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/list.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/logging.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/main.Plo@am__quote@
@@ -1198,7 +1236,7 @@ check-am: all-am
 	$(MAKE) $(AM_MAKEFLAGS) $(check_PROGRAMS)
 	$(MAKE) $(AM_MAKEFLAGS) check-TESTS
 check: check-am
-all-am: Makefile $(LTLIBRARIES) $(HEADERS)
+all-am: Makefile $(LIBRARIES) $(LTLIBRARIES) $(HEADERS)
 installdirs:
 	for dir in "$(DESTDIR)$(libdir)" "$(DESTDIR)$(includedir)" "$(DESTDIR)$(nihincludedir)"; do \
 	  test -z "$$dir" || $(MKDIR_P) "$$dir"; \
@@ -1220,6 +1258,7 @@ install-strip:
 mostlyclean-generic:
 
 clean-generic:
+	-test -z "$(CLEANFILES)" || rm -f $(CLEANFILES)
 
 distclean-generic:
 	-test -z "$(CONFIG_CLEAN_FILES)" || rm -f $(CONFIG_CLEAN_FILES)
@@ -1231,8 +1270,8 @@ maintainer-clean-generic:
 clean: clean-am
 
 clean-am: clean-checkPROGRAMS clean-generic clean-libLTLIBRARIES \
-	clean-libtool clean-local clean-noinstLTLIBRARIES \
-	mostlyclean-am
+	clean-libtool clean-local clean-noinstLIBRARIES \
+	clean-noinstLTLIBRARIES mostlyclean-am
 
 distclean: distclean-am
 	-rm -rf ./$(DEPDIR)
@@ -1306,12 +1345,12 @@ uninstall-am: uninstall-includeHEADERS uninstall-libLTLIBRARIES \
 
 .PHONY: CTAGS GTAGS all all-am check check-TESTS check-am clean \
 	clean-checkPROGRAMS clean-generic clean-libLTLIBRARIES \
-	clean-libtool clean-local clean-noinstLTLIBRARIES ctags \
-	distclean distclean-compile distclean-generic \
-	distclean-libtool distclean-tags distdir dvi dvi-am html \
-	html-am info info-am install install-am install-data \
-	install-data-am install-dvi install-dvi-am install-exec \
-	install-exec-am install-html install-html-am \
+	clean-libtool clean-local clean-noinstLIBRARIES \
+	clean-noinstLTLIBRARIES ctags distclean distclean-compile \
+	distclean-generic distclean-libtool distclean-tags distdir dvi \
+	dvi-am html html-am info info-am install install-am \
+	install-data install-data-am install-dvi install-dvi-am \
+	install-exec install-exec-am install-html install-html-am \
 	install-includeHEADERS install-info install-info-am \
 	install-libLTLIBRARIES install-man install-nihincludeHEADERS \
 	install-pdf install-pdf-am install-ps install-ps-am \
@@ -1322,6 +1361,14 @@ uninstall-am: uninstall-includeHEADERS uninstall-libLTLIBRARIES \
 	tags uninstall uninstall-am uninstall-includeHEADERS \
 	uninstall-libLTLIBRARIES uninstall-nihincludeHEADERS
 
+
+# TODO: dependencies? assumes that $(CC_FOR_BUILD) supports -c -o
+@CROSS_COMPILING_TRUE@.c.build-o:
+@CROSS_COMPILING_TRUE@	$(COMPILE_FOR_BUILD) -c -o $@ $<
+@CROSS_COMPILING_TRUE@libnih-build.a: $(libnih_build_a_BUILDOBJECTS)
+@CROSS_COMPILING_TRUE@	@-rm -f libnih-build.a
+@CROSS_COMPILING_TRUE@	$(libnih_build_a_AR) libnih-build.a $(libnih_build_a_BUILDOBJECTS)
+@CROSS_COMPILING_TRUE@	@$(RANLIB_FOR_BUILD) libnih-build.a
 
 .PHONY: tests
 tests: $(BUILT_SOURCES) $(check_PROGRAMS)

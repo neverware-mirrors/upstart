@@ -41,8 +41,8 @@ com_ubuntu_Upstart_OUTPUTS = \
 com_ubuntu_Upstart_XML = \
 	../dbus/com.ubuntu.Upstart.xml
 
-$(com_ubuntu_Upstart_OUTPUTS): $(com_ubuntu_Upstart_XML) $(top_builddir)/nih-dbus-tool/nih-dbus-tool
-	$(top_builddir)/nih-dbus-tool/nih-dbus-tool \
+$(com_ubuntu_Upstart_OUTPUTS): $(com_ubuntu_Upstart_XML) $(top_builddir)/nih-dbus-tool/nih-dbus-tool-build
+	$(top_builddir)/nih-dbus-tool/nih-dbus-tool-build \
 		--mode=proxy --prefix=upstart --default-interface=com.ubuntu.Upstart0_6 \
 		--output=$@ $<
 

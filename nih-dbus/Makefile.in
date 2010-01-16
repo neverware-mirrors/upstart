@@ -16,6 +16,7 @@
 @SET_MAKE@
 
 
+
 VPATH = @srcdir@
 pkgdatadir = $(datadir)/@PACKAGE@
 pkgincludedir = $(includedir)/@PACKAGE@
@@ -73,6 +74,11 @@ mkinstalldirs = $(install_sh) -d
 CONFIG_HEADER = $(top_builddir)/config.h
 CONFIG_CLEAN_FILES =
 CONFIG_CLEAN_VPATH_FILES =
+LIBRARIES = $(noinst_LIBRARIES)
+ARFLAGS = cru
+libnih_dbus_build_a_LIBADD =
+libnih_dbus_build_a_SOURCES = libnih-dbus-build.c
+libnih_dbus_build_a_OBJECTS = libnih-dbus-build.$(OBJEXT)
 am__vpath_adj_setup = srcdirstrip=`echo "$(srcdir)" | sed 's|.|.|g'`;
 am__vpath_adj = case $$p in \
     $(srcdir)/*) f=`echo "$$p" | sed "s|^$$srcdirstrip/||"`;; \
@@ -174,11 +180,12 @@ CCLD = $(CC)
 LINK = $(LIBTOOL) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) \
 	--mode=link $(CCLD) $(AM_CFLAGS) $(CFLAGS) $(AM_LDFLAGS) \
 	$(LDFLAGS) -o $@
-SOURCES = $(libnih_dbus_la_SOURCES) $(test_dbus_connection_SOURCES) \
-	$(test_dbus_error_SOURCES) $(test_dbus_message_SOURCES) \
-	$(test_dbus_object_SOURCES) $(test_dbus_pending_data_SOURCES) \
-	$(test_dbus_proxy_SOURCES) $(test_dbus_util_SOURCES)
-DIST_SOURCES = $(libnih_dbus_la_SOURCES) \
+SOURCES = libnih-dbus-build.c $(libnih_dbus_la_SOURCES) \
+	$(test_dbus_connection_SOURCES) $(test_dbus_error_SOURCES) \
+	$(test_dbus_message_SOURCES) $(test_dbus_object_SOURCES) \
+	$(test_dbus_pending_data_SOURCES) $(test_dbus_proxy_SOURCES) \
+	$(test_dbus_util_SOURCES)
+DIST_SOURCES = libnih-dbus-build.c $(libnih_dbus_la_SOURCES) \
 	$(test_dbus_connection_SOURCES) $(test_dbus_error_SOURCES) \
 	$(test_dbus_message_SOURCES) $(test_dbus_object_SOURCES) \
 	$(test_dbus_pending_data_SOURCES) $(test_dbus_proxy_SOURCES) \
@@ -198,6 +205,7 @@ ACLOCAL = @ACLOCAL@
 ALLOCA = @ALLOCA@
 AMTAR = @AMTAR@
 AR = @AR@
+AR_FOR_BUILD = @AR_FOR_BUILD@
 AUTOCONF = @AUTOCONF@
 AUTOHEADER = @AUTOHEADER@
 AUTOMAKE = @AUTOMAKE@
@@ -206,14 +214,18 @@ BUILD_INCLUDED_LIBINTL = @BUILD_INCLUDED_LIBINTL@
 CATOBJEXT = @CATOBJEXT@
 CC = @CC@
 CCDEPMODE = @CCDEPMODE@
+CC_FOR_BUILD = @CC_FOR_BUILD@
 CFLAGS = @CFLAGS@
+CFLAGS_FOR_BUILD = @CFLAGS_FOR_BUILD@
 CFLAG_VISIBILITY = @CFLAG_VISIBILITY@
 CPP = @CPP@
 CPPFLAGS = @CPPFLAGS@
 CYGPATH_W = @CYGPATH_W@
 DATADIRNAME = @DATADIRNAME@
 DBUS_CFLAGS = @DBUS_CFLAGS@
+DBUS_CFLAGS_FOR_BUILD = @DBUS_CFLAGS_FOR_BUILD@
 DBUS_LIBS = @DBUS_LIBS@
+DBUS_LIBS_FOR_BUILD = @DBUS_LIBS_FOR_BUILD@
 DEFS = @DEFS@
 DEPDIR = @DEPDIR@
 DSYMUTIL = @DSYMUTIL@
@@ -249,6 +261,7 @@ INTL_LIBTOOL_SUFFIX_PREFIX = @INTL_LIBTOOL_SUFFIX_PREFIX@
 INTL_MACOSX_LIBS = @INTL_MACOSX_LIBS@
 LD = @LD@
 LDFLAGS = @LDFLAGS@
+LDFLAGS_FOR_BUILD = @LDFLAGS_FOR_BUILD@
 LIBICONV = @LIBICONV@
 LIBINTL = @LIBINTL@
 LIBMULTITHREAD = @LIBMULTITHREAD@
@@ -290,6 +303,7 @@ PKG_CONFIG = @PKG_CONFIG@
 POSUB = @POSUB@
 PRI_MACROS_BROKEN = @PRI_MACROS_BROKEN@
 RANLIB = @RANLIB@
+RANLIB_FOR_BUILD = @RANLIB_FOR_BUILD@
 SED = @SED@
 SET_MAKE = @SET_MAKE@
 SHELL = @SHELL@
@@ -363,8 +377,22 @@ AM_CPPFLAGS = \
 	-I$(top_builddir) -I$(top_srcdir) \
 	-I$(top_srcdir)/intl
 
+@CROSS_COMPILING_TRUE@AM_CFLAGS_FOR_BUILD = \
+@CROSS_COMPILING_TRUE@	$(DBUS_CFLAGS_FOR_BUILD)
+
+
+# We cannot (easily?) use libtool here, as we would need to create an
+# entirely separate copy of it for the build architecture. Instead, we just
+# rely on .a files, since we don't need to install them.
+@CROSS_COMPILING_TRUE@COMPILE_FOR_BUILD = $(CC_FOR_BUILD) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) \
+@CROSS_COMPILING_TRUE@	$(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS_FOR_BUILD) $(CFLAGS_FOR_BUILD)
+
+@CROSS_COMPILING_TRUE@LINK_FOR_BUILD = $(CC_FOR_BUILD) $(AM_CFLAGS_FOR_BUILD) $(CFLAGS_FOR_BUILD) \
+@CROSS_COMPILING_TRUE@	$(AM_LDFLAGS) $(LDFLAGS_FOR_BUILD) -o $@
+
 @INSTALL_NIH_TRUE@lib_LTLIBRARIES = libnih-dbus.la
 @INSTALL_NIH_FALSE@noinst_LTLIBRARIES = libnih-dbus.la
+@INSTALL_NIH_TRUE@noinst_LTLIBRARIES = 
 libnih_dbus_la_SOURCES = \
 	dbus_error.c \
 	dbus_connection.c \
@@ -381,6 +409,13 @@ libnih_dbus_la_LIBADD = \
 	$(DBUS_LIBS) \
 	-lrt
 
+@CROSS_COMPILING_TRUE@noinst_LIBRARIES = libnih-dbus-build.a
+
+# TODO: requires GNU Make
+@CROSS_COMPILING_TRUE@libnih_dbus_build_a_BUILDOBJECTS = $(patsubst %.c,%.build-o,$(filter %.c,$(libnih_dbus_la_SOURCES)))
+@CROSS_COMPILING_TRUE@libnih_dbus_build_a_AR = $(AR_FOR_BUILD) $(ARFLAGS)
+@CROSS_COMPILING_TRUE@libnih_dbus_build_a_LINK = $(LINK_FOR_BUILD)
+@CROSS_COMPILING_TRUE@CLEANFILES = $(libnih_dbus_build_a_BUILDOBJECTS)
 EXTRA_DIST = libnih-dbus.ver libnih-dbus.supp
 @INSTALL_NIH_TRUE@include_HEADERS = \
 @INSTALL_NIH_TRUE@	libnih-dbus.h
@@ -422,7 +457,7 @@ test_dbus_util_LDADD = libnih-dbus.la ../nih/libnih.la $(DBUS_LIBS)
 all: all-am
 
 .SUFFIXES:
-.SUFFIXES: .c .lo .o .obj
+.SUFFIXES: .build-o .c .lo .o .obj
 $(srcdir)/Makefile.in:  $(srcdir)/Makefile.am  $(am__configure_deps)
 	@for dep in $?; do \
 	  case '$(am__configure_deps)' in \
@@ -453,6 +488,13 @@ $(top_srcdir)/configure:  $(am__configure_deps)
 $(ACLOCAL_M4):  $(am__aclocal_m4_deps)
 	cd $(top_builddir) && $(MAKE) $(AM_MAKEFLAGS) am--refresh
 $(am__aclocal_m4_deps):
+
+clean-noinstLIBRARIES:
+	-test -z "$(noinst_LIBRARIES)" || rm -f $(noinst_LIBRARIES)
+@CROSS_COMPILING_FALSE@libnih-dbus-build.a: $(libnih_dbus_build_a_OBJECTS) $(libnih_dbus_build_a_DEPENDENCIES) 
+@CROSS_COMPILING_FALSE@	-rm -f libnih-dbus-build.a
+@CROSS_COMPILING_FALSE@	$(libnih_dbus_build_a_AR) libnih-dbus-build.a $(libnih_dbus_build_a_OBJECTS) $(libnih_dbus_build_a_LIBADD)
+@CROSS_COMPILING_FALSE@	$(RANLIB) libnih-dbus-build.a
 install-libLTLIBRARIES: $(lib_LTLIBRARIES)
 	@$(NORMAL_INSTALL)
 	test -z "$(libdir)" || $(MKDIR_P) "$(DESTDIR)$(libdir)"
@@ -539,6 +581,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/dbus_pending_data.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/dbus_proxy.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/dbus_util.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libnih-dbus-build.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test_dbus_connection.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test_dbus_error.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test_dbus_message.Po@am__quote@
@@ -890,7 +933,7 @@ check-am: all-am
 	$(MAKE) $(AM_MAKEFLAGS) $(check_PROGRAMS)
 	$(MAKE) $(AM_MAKEFLAGS) check-TESTS
 check: check-am
-all-am: Makefile $(LTLIBRARIES) $(HEADERS)
+all-am: Makefile $(LIBRARIES) $(LTLIBRARIES) $(HEADERS)
 installdirs:
 	for dir in "$(DESTDIR)$(libdir)" "$(DESTDIR)$(includedir)" "$(DESTDIR)$(nihdbusincludedir)"; do \
 	  test -z "$$dir" || $(MKDIR_P) "$$dir"; \
@@ -912,6 +955,7 @@ install-strip:
 mostlyclean-generic:
 
 clean-generic:
+	-test -z "$(CLEANFILES)" || rm -f $(CLEANFILES)
 
 distclean-generic:
 	-test -z "$(CONFIG_CLEAN_FILES)" || rm -f $(CONFIG_CLEAN_FILES)
@@ -923,8 +967,8 @@ maintainer-clean-generic:
 clean: clean-am
 
 clean-am: clean-checkPROGRAMS clean-generic clean-libLTLIBRARIES \
-	clean-libtool clean-local clean-noinstLTLIBRARIES \
-	mostlyclean-am
+	clean-libtool clean-local clean-noinstLIBRARIES \
+	clean-noinstLTLIBRARIES mostlyclean-am
 
 distclean: distclean-am
 	-rm -rf ./$(DEPDIR)
@@ -998,12 +1042,12 @@ uninstall-am: uninstall-includeHEADERS uninstall-libLTLIBRARIES \
 
 .PHONY: CTAGS GTAGS all all-am check check-TESTS check-am clean \
 	clean-checkPROGRAMS clean-generic clean-libLTLIBRARIES \
-	clean-libtool clean-local clean-noinstLTLIBRARIES ctags \
-	distclean distclean-compile distclean-generic \
-	distclean-libtool distclean-tags distdir dvi dvi-am html \
-	html-am info info-am install install-am install-data \
-	install-data-am install-dvi install-dvi-am install-exec \
-	install-exec-am install-html install-html-am \
+	clean-libtool clean-local clean-noinstLIBRARIES \
+	clean-noinstLTLIBRARIES ctags distclean distclean-compile \
+	distclean-generic distclean-libtool distclean-tags distdir dvi \
+	dvi-am html html-am info info-am install install-am \
+	install-data install-data-am install-dvi install-dvi-am \
+	install-exec install-exec-am install-html install-html-am \
 	install-includeHEADERS install-info install-info-am \
 	install-libLTLIBRARIES install-man \
 	install-nihdbusincludeHEADERS install-pdf install-pdf-am \
@@ -1015,6 +1059,14 @@ uninstall-am: uninstall-includeHEADERS uninstall-libLTLIBRARIES \
 	uninstall-includeHEADERS uninstall-libLTLIBRARIES \
 	uninstall-nihdbusincludeHEADERS
 
+
+# TODO: dependencies? assumes that $(CC_FOR_BUILD) supports -c -o
+@CROSS_COMPILING_TRUE@.c.build-o:
+@CROSS_COMPILING_TRUE@	$(COMPILE_FOR_BUILD) -c -o $@ $<
+@CROSS_COMPILING_TRUE@libnih-dbus-build.a: $(libnih_dbus_build_a_BUILDOBJECTS)
+@CROSS_COMPILING_TRUE@	@-rm -f libnih-dbus-build.a
+@CROSS_COMPILING_TRUE@	$(libnih_dbus_build_a_AR) libnih-dbus-build.a $(libnih_dbus_build_a_BUILDOBJECTS)
+@CROSS_COMPILING_TRUE@	@$(RANLIB_FOR_BUILD) libnih-dbus-build.a
 
 .PHONY: tests
 tests: $(BUILT_SOURCES) $(check_PROGRAMS)
