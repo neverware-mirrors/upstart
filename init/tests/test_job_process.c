@@ -3829,6 +3829,11 @@ test_handler (void)
 	class->expect = EXPECT_NONE;
 
 
+#if 0
+        /* The following tests fail on xen VM instances, hanging the
+         * machine. */
+        /* TODO(kmixter): understand why these fail of xen VMs */
+
 	/* Check that a traced process has a signal delivered to it
 	 * unchanged.
 	 */
@@ -3875,7 +3880,6 @@ test_handler (void)
 	}
 
 	class->expect = EXPECT_NONE;
-
 
 	/* Check that a new traced process which receives SIGTRAP doesn't
 	 * have it delivered, and instead has its options set.
@@ -4325,6 +4329,7 @@ test_handler (void)
 
 		nih_free (job);
 	}
+#endif
 
 	class->expect = EXPECT_NONE;
 #if HAVE_VALGRIND_VALGRIND_H
