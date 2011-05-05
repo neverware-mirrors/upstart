@@ -94,7 +94,7 @@ typedef enum console_type {
  * @console: how to arrange processes' stdin/out/err file descriptors,
  * @umask: file mode creation mask,
  * @nice: process priority,
- * @oom_adj: OOM killer adjustment,
+ * @oom_score_adj: OOM killer score adjustment,
  * @limits: resource limits indexed by resource,
  * @chroot: root directory of process (implies @chdir if not set),
  * @chdir: working directory of process,
@@ -143,7 +143,7 @@ typedef struct job_class {
 
 	mode_t          umask;
 	int             nice;
-	int             oom_adj;
+	int             oom_score_adj;
 	struct rlimit  *limits[RLIMIT_NLIMITS];
 	char           *chroot;
 	char           *chdir;
@@ -152,6 +152,8 @@ typedef struct job_class {
 	int             debug;
 } JobClass;
 
+#define SCORE_TO_ADJ(x) ((x * ((x < 0) ? 17 : 15)) / 1000)
+#define ADJ_TO_SCORE(x) ((x * 1000) / ((x < 0) ? 17 : 15))
 
 NIH_BEGIN_EXTERN
 
