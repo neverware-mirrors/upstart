@@ -375,7 +375,7 @@ job_process_spawn (JobClass     *class,
 {
 	sigset_t  child_set, orig_set;
 	pid_t     pid;
-	int       i, fds[2], oom_value;
+	int       i, fds[2];
 	char      filename[PATH_MAX];
 	FILE     *fd;
 
@@ -516,6 +516,7 @@ job_process_spawn (JobClass     *class,
 	/* Adjust the process OOM killer priority.
 	 */
 	if (class->oom_score_adj) {
+		int oom_value;
 		snprintf (filename, sizeof (filename),
 			  "/proc/%d/oom_score_adj", getpid ());
 		oom_value = class->oom_score_adj;
@@ -523,7 +524,8 @@ job_process_spawn (JobClass     *class,
 		if ((! fd) && (errno == EACCES)) {
 			snprintf (filename, sizeof (filename),
 				  "/proc/%d/oom_adj", getpid ());
-			oom_value = SCORE_TO_ADJ(class->oom_score_adj);
+			oom_value = (class->oom_score_adj
+				     * ((class->oom_score_adj < 0) ? 17 : 15)) / 1000;
 			fd = fopen (filename, "w");
 		}
 		if (! fd) {

@@ -6283,6 +6283,8 @@ test_stanza_nice (void)
 	nih_free (err);
 }
 
+#define ADJ_TO_SCORE(x) ((x * 1000) / ((x < 0) ? 17 : 15))
+
 void
 test_stanza_oom (void)
 {

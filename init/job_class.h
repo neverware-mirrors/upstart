@@ -152,8 +152,6 @@ typedef struct job_class {
 	int             debug;
 } JobClass;
 
-#define SCORE_TO_ADJ(x) ((x * ((x < 0) ? 17 : 15)) / 1000)
-#define ADJ_TO_SCORE(x) ((x * 1000) / ((x < 0) ? 17 : 15))
 
 NIH_BEGIN_EXTERN
 

@@ -2303,7 +2303,7 @@ stanza_oom (JobClass        *class,
 	} else {
 		errno = 0;
 		oom_adj = (int)strtol (arg, &endptr, 10);
-		class->oom_score_adj = ADJ_TO_SCORE(oom_adj);
+		class->oom_score_adj = (oom_adj * 1000) / ((oom_adj < 0) ? 17 : 15);
 		if (errno || *endptr || (oom_adj < -17) || (oom_adj > 15))
 			nih_return_error (-1, PARSE_ILLEGAL_OOM,
 					  _(PARSE_ILLEGAL_OOM_STR));
