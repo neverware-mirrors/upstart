@@ -46,7 +46,7 @@
 
 
 /**
- * system_send_signal:
+ * system_kill:
  * @pid: process id of process,
  * @signal: signal to send.
  *
@@ -56,8 +56,8 @@
  * Returns: zero on success, negative value on raised error.
  **/
 int
-system_send_signal (pid_t pid,
-		    int   signal)
+system_kill (pid_t pid,
+	     int   signal)
 {
 	pid_t pgid;
 

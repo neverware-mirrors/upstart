@@ -813,7 +813,7 @@ job_process_kill (Job         *job,
 		  nih_signal_to_name (job->class->kill_signal),
 		  job_name (job), process_name (process), job->pid[process]);
 
-	if (system_send_signal (job->pid[process], job->class->kill_signal) < 0) {
+	if (system_kill (job->pid[process], job->class->kill_signal) < 0) {
 		NihError *err;
 
 		err = nih_error_get ();
@@ -863,7 +863,7 @@ job_process_kill_timer (Job      *job,
 		  "KILL",
 		  job_name (job), process_name (process), job->pid[process]);
 
-	if (system_send_signal (job->pid[process], SIGKILL) < 0) {
+	if (system_kill (job->pid[process], SIGKILL) < 0) {
 		NihError *err;
 
 		err = nih_error_get ();
