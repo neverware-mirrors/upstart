@@ -154,7 +154,7 @@ is_conf_file (const char *path)
 {
 	char *ptr = strrchr (path, '.');
 
-	if (ptr && IS_CONF_EXT (ptr))
+	if (ptr && (ptr > path) && (ptr[-1] != '/') && IS_CONF_EXT (ptr))
 		return TRUE;
 
 	return FALSE;

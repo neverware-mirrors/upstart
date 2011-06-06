@@ -302,11 +302,11 @@ parse_job (const void *parent,
 		nih_debug ("Reusing JobClass %s (%s)",
 				class->name, class->path);
 	} else {
-	  nih_debug ("Creating new JobClass %s",
+		nih_debug ("Creating new JobClass %s",
 			  name);
-	  class = job_class_new (parent, name);
-	  if (! class)
-		  nih_return_system_error (NULL);
+		class = job_class_new (parent, name);
+		if (! class)
+			nih_return_system_error (NULL);
 	}
 
 	if (nih_config_parse_file (file, len, pos, lineno,
