@@ -108,7 +108,7 @@ typedef enum console_type {
  *
  * The default OOM score adjustment for processes.
  **/
-#define JOB_DEFAULT_OOM_SCORE_ADJ 0
+#define JOB_DEFAULT_OOM_SCORE_ADJ -1000
 
 /**
  * JOB_DEFAULT_ENVIRONMENT:
