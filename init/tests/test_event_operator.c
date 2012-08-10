@@ -763,6 +763,20 @@ test_operator_match (void)
 	TEST_FALSE (event_operator_match (oper, event, NULL));
 
 
+	/* Check that unknown variable names match when negated. */
+	TEST_FEATURE ("with unknown variable in operator");
+	event->env = env1;
+	event->env[0] = "FRODO=foo";
+	event->env[1] = "BILBO=bar";
+	event->env[2] = NULL;
+
+	oper->env = env2;
+	oper->env[0] = "MERRY!=baz";
+	oper->env[1] = NULL;
+
+	TEST_TRUE (event_operator_match (oper, event, NULL));
+
+
 	/* Check that the operator environment may be globs. */
 	TEST_FEATURE ("with globs in operator environment");
 	event->env = env1;

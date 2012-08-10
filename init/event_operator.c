@@ -326,7 +326,7 @@ event_operator_match (EventOperator *oper,
 		 * matches and no such variable.
 		 */
 		if (! (eenv && *eenv))
-			return FALSE;
+			return negate;
 
 		/* Grab the value out by looking for the equals, we don't
 		 * care about the name if we're positional and we've already
