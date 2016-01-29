@@ -37,6 +37,15 @@ AM_CONDITIONAL([HAVE_UDEV], [test "$have_udev" = yes])
 # Checks for header files.
 AC_CHECK_HEADERS([valgrind/valgrind.h])
 
+AC_ARG_ENABLE(selinux,
+	AS_HELP_STRING([--enable-selinux], [enable SELinux support]),
+	[], [enable_selinux=no])
+
+if test "x$enable_selinux" = "xyes" ; then
+	PKG_CHECK_MODULES(SELINUX, [libselinux])
+	AC_DEFINE(HAVE_SELINUX, 1, [Define if we have SELinux])
+fi
+
 # Checks for typedefs, structures, and compiler characteristics.
 AC_PROG_CC_C99
 AM_PROG_CC_C_O
