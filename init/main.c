@@ -77,7 +77,14 @@ static void kbd_handler     (void *data, NihSignal *signal);
 static void pwr_handler     (void *data, NihSignal *signal);
 static void hup_handler     (void *data, NihSignal *signal);
 static void usr1_handler    (void *data, NihSignal *signal);
+#else
+static int  logger_kmsg     (NihLogLevel priority, const char *message) {}
 #endif /* DEBUG */
+
+#ifdef HAVE_SELINUX
+#define CHECKREQPROT_PATH "/sys/fs/selinux/checkreqprot"
+static void initialize_selinux (char **argv);
+#endif
 
 
 /**
@@ -120,27 +127,8 @@ main (int   argc,
 	int    ret;
 
 #ifdef HAVE_SELINUX
-	int    enforce = 0;
-
-	if (getpid() == 1 && getenv ("SELINUX_INIT") == NULL) {
-		const char *old_program_name = program_name;
-		program_name = "selinux";  /* for logger_kmsg before NIH init */
-		putenv ("SELINUX_INIT=YES");
-		if (selinux_init_load_policy (&enforce) == 0 ) {
-			logger_kmsg (NIH_LOG_MESSAGE,
-				     "policy loaded, doing self-exec\n");
-			execv (argv[0], argv);
-		} else {
-			logger_kmsg (NIH_LOG_WARN, "policy failed to load\n");
-			if (enforce > 0) {
-				/* Enforcing mode, must quit. */
-				logger_kmsg (NIH_LOG_FATAL,
-					     "no policy in enforcing "
-					     "mode: quit\n");
-				exit (1);
-			}
-		}
-		program_name = old_program_name;  /* put things back */
+	if (getpid () == 1 && getenv ("SELINUX_INIT") == NULL) {
+		initialize_selinux (argv);
 	}
 #endif
 
@@ -661,3 +649,61 @@ usr1_handler (void      *data,
 	}
 }
 #endif /* DEBUG */
+
+#ifdef HAVE_SELINUX
+/**
+ * initialize_selinux:
+ *
+ * Loads an SELinux policy and reexecs init to enter the the proper SELinux
+ * context.
+ **/
+void initialize_selinux (char **argv)
+{
+	int         enforce = 0;
+	FILE       *checkreqprot_file;
+	const char *errstr;
+
+	program_name = argv[0];  /* for logger_kmsg before NIH init */
+	putenv ("SELINUX_INIT=YES");
+	if (selinux_init_load_policy (&enforce) != 0) {
+		logger_kmsg (NIH_LOG_WARN, "SELinux policy failed to load");
+		if (enforce > 0) {
+			/* Enforcing mode, must quit. */
+			logger_kmsg (NIH_LOG_FATAL,
+				     "no SELinux policy in enforcing mode: quit");
+			exit (1);
+		}
+	}
+
+	checkreqprot_file = fopen (CHECKREQPROT_PATH, "w");
+	if (checkreqprot_file == NULL) {
+		errstr = strerror(errno);
+		logger_kmsg (NIH_LOG_FATAL,
+			     "Failed to open " CHECKREQPROT_PATH);
+		logger_kmsg (NIH_LOG_FATAL, errstr);
+		exit (1);
+	}
+	if (fputc ('0', checkreqprot_file) == EOF) {
+		errstr = strerror(errno);
+		logger_kmsg (NIH_LOG_FATAL,
+			     "Failed to write " CHECKREQPROT_PATH);
+		logger_kmsg (NIH_LOG_FATAL, errstr);
+		exit (1);
+	}
+	if (fclose (checkreqprot_file) != 0) {
+		errstr = strerror(errno);
+		logger_kmsg (NIH_LOG_FATAL,
+			     "Failed to close " CHECKREQPROT_PATH);
+		logger_kmsg (NIH_LOG_FATAL, errstr);
+		exit (1);
+	}
+
+	logger_kmsg (NIH_LOG_MESSAGE, "SELinux policy loaded, doing self-exec");
+	execv (argv[0], argv);
+	errstr = strerror(errno);
+
+	logger_kmsg (NIH_LOG_FATAL, "Failed to re-exec init.");
+	logger_kmsg (NIH_LOG_FATAL, errstr);
+	exit (1);
+}
+#endif /* HAVE_SELINUX */
