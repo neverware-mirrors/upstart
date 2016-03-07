@@ -41,6 +41,11 @@
 #include <syslog.h>
 #include <unistd.h>
 
+#ifdef ADD_DIRCRYPTO_RING
+#include <ext2fs/ext2_fs.h>
+#include <keyutils.h>
+#endif
+
 #ifdef HAVE_SELINUX
 #include <selinux/selinux.h>
 #endif
@@ -125,6 +130,11 @@ main (int   argc,
 {
 	char **args;
 	int    ret;
+#ifdef ADD_DIRCRYPTO_RING
+	int    root_fd;
+	struct ext4_encryption_policy policy;
+	key_serial_t keyring_id;
+#endif
 
 #ifdef HAVE_SELINUX
 	if (getpid () == 1 && getenv ("SELINUX_INIT") == NULL) {
@@ -250,6 +260,44 @@ main (int   argc,
 		(int)getpid (), (int)getppid ());
 #endif /* DEBUG */
 
+#ifdef ADD_DIRCRYPTO_RING
+#define EXT4_IOC_GET_ENCRYPTION_POLICY \
+	_IOW('f', 21, struct ext4_encryption_policy)
+	/*
+	 * Set a keyring for the session to hold ext4 crypto keys.
+	 * The session is at the root of all processes, so any users who wish
+	 * to access a directory protected by ext4 crypto can access the key.
+	 *
+	 * Set only a session keyring when needed.
+	 * A kernel patch is needed (see crbug/593893).
+	 * Upstream kernel does not have the patch yet
+	 * (See https://lkml.org/lkml/2016/3/17/491).
+	 */
+	int fd = open("/", O_RDONLY | O_DIRECTORY | O_CLOEXEC);
+	if (fd == -1) {
+		nih_warn("%s: %s", _("Unable to open / directory: %s"),
+			 strerror (errno));
+		ret = EINVAL;
+	} else {
+		ret = ioctl(fd, EXT4_IOC_GET_ENCRYPTION_POLICY, &policy);
+		if (ret)
+			ret = errno;
+		close(fd);
+	}
+	if (ret != EINVAL && ret != EOPNOTSUPP && ret != ENOTTY) {
+		keyring_id = add_key ("keyring", "dircrypt", 0, 0,
+				KEY_SPEC_SESSION_KEYRING);
+		if (keyring_id == -1)
+			nih_warn ("%s: %s",
+				  _("Unable to create dircrypt keyring: %s"),
+				  strerror (errno));
+		else
+			keyctl_setperm(keyring_id,
+				       KEY_POS_VIEW | KEY_POS_SEARCH |
+				       KEY_POS_LINK | KEY_POS_READ |
+				       KEY_USR_ALL);
+	}
+#endif
 
 	/* Reset the signal state and install the signal handler for those
 	 * signals we actually want to catch; this also sets those that

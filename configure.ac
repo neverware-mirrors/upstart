@@ -34,6 +34,37 @@ PKG_CHECK_MODULES([UDEV], [libudev >= 146], [have_udev=yes], [have_udev=no])
 
 AM_CONDITIONAL([HAVE_UDEV], [test "$have_udev" = yes])
 
+AC_MSG_CHECKING([wether to add a keyring for ext4 crypto])
+AC_ARG_WITH(
+	[dircrypto-keyring],
+	[AS_HELP_STRING(
+		[--with-dircrypto-keyring],
+		[add crypto keyring for directory encryption])],
+	[],
+	[with_dircrypto_keyring=auto]
+)
+
+KEYUTILS_LIBS=""
+
+AS_IF(
+	[test "$with_dircrypto_keyring" != "no"],
+	[
+		AC_CHECK_HEADER([keyutils.h],
+			[AC_CHECK_LIB([keyutils], [keyctl_read], [have_keyutils="yes"])]
+		)
+		if test "$have_keyutils" != "yes"; then
+			if test "$with_dircrypto_keyring" = "yes"; then
+				AC_MSG_ERROR([The keyutils library (or developer files) was not found])
+			fi
+		else
+			KEYUTILS_LIBS="-lkeyutils"
+			AC_DEFINE([ADD_DIRCRYPTO_RING], 1, [Use keyutils and kernel keyring])
+		fi
+	]
+)
+
+AC_SUBST(KEYUTILS_LIBS)
+
 # Checks for header files.
 AC_CHECK_HEADERS([valgrind/valgrind.h])
 

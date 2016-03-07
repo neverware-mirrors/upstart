@@ -62,6 +62,7 @@ init_LDADD = \
 	$(NIH_DBUS_LIBS) \
 	$(DBUS_LIBS) \
 	$(SELINUX_LIBS) \
+	$(KEYUTILS_LIBS) \
 	-lrt
 
 
