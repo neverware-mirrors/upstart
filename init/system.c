@@ -175,7 +175,8 @@ system_setup_console (ConsoleType type,
  **/
 int
 system_mount (const char *type,
-	      const char *dir)
+	      const char *dir,
+	      unsigned int opts)
 {
 	nih_local char *parent = NULL;
 	char *          ptr;
@@ -204,8 +205,7 @@ system_mount (const char *type,
 		return 0;
 
 	/* Mount the filesystem */
-	if (mount ("none", dir, type,
-		   MS_NODEV | MS_NOEXEC | MS_NOSUID, NULL) < 0)
+       if (mount ("none", dir, type, opts, NULL) < 0)
 		nih_return_system_error (-1);
 
 	return 0;
