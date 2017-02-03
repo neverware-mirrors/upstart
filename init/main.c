@@ -330,15 +330,20 @@ main (int   argc,
 	if (ret != EINVAL && ret != EOPNOTSUPP && ret != ENOTTY) {
 		keyring_id = add_key ("keyring", "dircrypt", 0, 0,
 				KEY_SPEC_SESSION_KEYRING);
-		if (keyring_id == -1)
+		if (keyring_id == -1) {
 			nih_warn ("%s: %s",
 				  _("Unable to create dircrypt keyring: %s"),
 				  strerror (errno));
-		else
+		} else {
 			keyctl_setperm(keyring_id,
 				       KEY_POS_VIEW | KEY_POS_SEARCH |
 				       KEY_POS_LINK | KEY_POS_READ |
 				       KEY_USR_ALL);
+			keyctl_setperm(KEY_SPEC_SESSION_KEYRING,
+				       KEY_POS_VIEW | KEY_POS_SEARCH |
+				       KEY_POS_LINK | KEY_POS_READ |
+				       KEY_USR_ALL);
+		}
 	}
 #endif
 
