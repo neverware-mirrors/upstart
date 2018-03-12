@@ -44,6 +44,7 @@ const char *  environ_getn      (char * const *env, const char *key,
 				 size_t len);
 
 int           environ_all_valid (char * const *env);
+int           environ_is_upstart_key (const char *key);
 
 char *        environ_expand    (const void *parent, const char *string,
 				 char * const *env)

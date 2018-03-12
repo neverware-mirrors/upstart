@@ -280,6 +280,48 @@ event_pending (Event *event)
 }
 
 /**
+ * event_environment_init
+ * @root: event context
+ * @class: job class
+ * @env: environment to construct
+ * @parent: Parent for @env allocations
+ * @len: length of @env
+ * @event_list_key: the environment key to store event names in
+ *
+ * Constructs a the environment a job of @class should receive when it gets
+ * triggered by the event represented in @root. In particular, only
+ * upstart-internal enviroment variables and environment variables explicitly
+ * imported by the job a re copied over. Updates @env to hold the constructed
+ * environment.
+ **/
+static void
+event_environment_init (EventOperator *root,
+			JobClass      *class,
+			char        ***env,
+			void          *parent,
+			size_t        *len,
+			const char    *event_list_key) {
+	nih_local char **event_op_env = NULL;
+	size_t event_op_env_len = 0;
+	char *const *event_list = NULL;
+	char **e = NULL;
+
+	NIH_MUST (event_operator_environment (root, &event_op_env, NULL,
+					      &event_op_env_len,
+					      event_list_key));
+
+	/* Copy all variables specifically whitelisted by the job. */
+	NIH_MUST (job_class_import_environment (class, env, parent, len,
+						event_op_env));
+
+	/* Copy over upstart-internal environment variables. */
+	for (e = event_op_env; e && *e; e++) {
+		if (environ_is_upstart_key (*e))
+			NIH_MUST (environ_add (env, parent, len, TRUE, *e));
+	}
+}
+
+/**
  * event_pending_handle_jobs:
  * @event: event to be handled.
  *
@@ -327,9 +369,10 @@ event_pending_handle_jobs (Event *event)
 					 * since this is appended to the
 					 * existing job environment.
 					 */
-					NIH_MUST (event_operator_environment (
-						job->stop_on, &job->stop_env,
-						job, &len, "UPSTART_STOP_EVENTS"));
+					event_environment_init (
+						job->stop_on, class,
+						&job->stop_env, job, &len,
+						"UPSTART_STOP_EVENTS");
 
 					job_finished (job, FALSE);
 
@@ -361,9 +404,8 @@ event_pending_handle_jobs (Event *event)
 			 */
 			env = NIH_MUST (job_class_environment (
 					  NULL, class, &len));
-			NIH_MUST (event_operator_environment (class->start_on,
-							      &env, NULL, &len,
-							      "UPSTART_EVENTS"));
+			event_environment_init (class->start_on, class, &env,
+						NULL, &len, "UPSTART_EVENTS");
 
 			/* Expand the instance name against the environment */
 			name = NIH_SHOULD (environ_expand (NULL,

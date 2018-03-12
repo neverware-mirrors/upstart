@@ -134,6 +134,7 @@ typedef enum console_type {
  * @version: version; intended for humans,
  * @env: NULL-terminated array of default environment variables,
  * @export: NULL-terminated array of environment exported to events,
+ * @import: NULL-terminated array of environment to be imported from IPC,
  * @start_on: event operator expression that can start an instance,
  * @stop_on: event operator expression that stops instances,
  * @emits: NULL-terminated array of events that may be emitted by instances,
@@ -176,6 +177,7 @@ typedef struct job_class {
 
 	char          **env;
 	char          **export;
+	char          **import;
 
 	EventOperator  *start_on;
 	EventOperator  *stop_on;
@@ -231,7 +233,11 @@ void        job_class_unregister           (JobClass *class,
 char      **job_class_environment          (const void *parent,
 					    JobClass *class, size_t *len)
 	__attribute__ ((warn_unused_result, malloc));
-
+char**      job_class_import_environment   (JobClass     *class,
+					    char       ***env,
+					    void         *parent,
+					    size_t       *len,
+					    char * const *new_env);
 
 int         job_class_get_instance         (JobClass *class,
 					    NihDBusMessage *message,

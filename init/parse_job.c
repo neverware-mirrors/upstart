@@ -118,6 +118,10 @@ static int stanza_export      (JobClass *class, NihConfigStanza *stanza,
 			       const char *file, size_t len,
 			       size_t *pos, size_t *lineno)
 	__attribute__ ((warn_unused_result));
+static int stanza_import      (JobClass *class, NihConfigStanza *stanza,
+			       const char *file, size_t len,
+			       size_t *pos, size_t *lineno)
+	__attribute__ ((warn_unused_result));
 
 static int stanza_start       (JobClass *class, NihConfigStanza *stanza,
 			       const char *file, size_t len,
@@ -232,6 +236,7 @@ static NihConfigStanza stanzas[] = {
 	{ "version",     (NihConfigHandler)stanza_version     },
 	{ "env",         (NihConfigHandler)stanza_env         },
 	{ "export",      (NihConfigHandler)stanza_export      },
+	{ "import",      (NihConfigHandler)stanza_import      },
 	{ "start",       (NihConfigHandler)stanza_start       },
 	{ "stop",        (NihConfigHandler)stanza_stop        },
 	{ "emits",       (NihConfigHandler)stanza_emits       },
@@ -1293,6 +1298,52 @@ stanza_export (JobClass        *class,
 
 	for (arg = args; *arg; arg++)
 		if (! nih_str_array_addp (&class->export, class, NULL, *arg))
+			nih_return_system_error (-1);
+
+	return 0;
+}
+
+/**
+ * stanza_import:
+ * @class: job class being parsed,
+ * @stanza: stanza found,
+ * @file: file or string to parse,
+ * @len: length of @file,
+ * @pos: offset within @file,
+ * @lineno: line number.
+ *
+ * Parse an import stanza from @file, extracting one or more arguments
+ * containing environment variable names.  These are stored in the import
+ * array, which is increased in size to accommodate the new values.
+ *
+ * Returns: zero on success, negative value on error.
+ **/
+static int
+stanza_import (JobClass        *class,
+	       NihConfigStanza *stanza,
+	       const char      *file,
+	       size_t           len,
+	       size_t          *pos,
+	       size_t          *lineno)
+{
+	nih_local char **args = NULL;
+	char           **arg;
+
+	nih_assert (class != NULL);
+	nih_assert (stanza != NULL);
+	nih_assert (file != NULL);
+	nih_assert (pos != NULL);
+
+	if (! nih_config_has_token (file, len, pos, lineno))
+		nih_return_error (-1, NIH_CONFIG_EXPECTED_TOKEN,
+				  _(NIH_CONFIG_EXPECTED_TOKEN_STR));
+
+	args = nih_config_parse_args (NULL, file, len, pos, lineno);
+	if (! args)
+		return -1;
+
+	for (arg = args; *arg; arg++)
+		if (! nih_str_array_addp (&class->import, class, NULL, *arg))
 			nih_return_system_error (-1);
 
 	return 0;

@@ -142,6 +142,7 @@ job_class_new (const void *parent,
 
 	class->env = NULL;
 	class->export = NULL;
+	class->import = NULL;
 
 	class->start_on = NULL;
 	class->stop_on = NULL;
@@ -442,6 +443,69 @@ error:
 	return NULL;
 }
 
+/**
+ * job_class_import_environment:
+ * @class: class to import environment for.
+ * @env: pointer to environment table,
+ * @len: length of @env,
+ * @new_env: environment table to append to import into @env.
+ *
+ * Updates the environment table @env to add any entries in @new_env
+ * that are imported per import declarations in @class.
+ *
+ * Both the array and the new strings within it are allocated using
+ * nih_alloc().
+ *
+ * @len will be updated to contain the new array length and @env will
+ * be updated to point to the new array pointer; use the return value
+ * simply to check for success.
+ *
+ * Returns: new array pointer or NULL if insufficient memory.
+ **/
+char**
+job_class_import_environment (JobClass     *class,
+			      char       ***env,
+			      void         *parent,
+			      size_t       *len,
+			      char * const *new_env)
+{
+	char * const *e;
+
+	nih_assert (env != NULL);
+
+	if (! *env) {
+		*env = nih_str_array_new (parent);
+		if (! *env)
+			return NULL;
+		if (len)
+			*len = 0;
+	}
+
+	for (e = new_env; e && *e; e++) {
+		char * const *match = NULL;
+		size_t elen;
+
+		if (environ_is_upstart_key (*e))
+			continue;
+
+		elen = strcspn(*e, "=");
+		for (match = class->import; match && *match; match++) {
+			if ((strncmp (*match, *e, elen) == 0) && !match[elen])
+				break;
+		}
+
+		if (! match) {
+			nih_warn ("%s: Undeclared imported variable %s",
+				  class->name, *e);
+		}
+
+		if (! environ_add (env, parent, len, TRUE, *e))
+			return NULL;
+	}
+
+	return *env;
+}
+
 
 /**
  * job_class_get_instance:
@@ -490,7 +554,8 @@ job_class_get_instance (JobClass        *class,
 	if (! instance_env)
 		nih_return_system_error (-1);
 
-	if (! environ_append (&instance_env, NULL, &len, TRUE, env))
+	if (! job_class_import_environment (class, &instance_env, NULL, &len,
+					    env))
 		nih_return_system_error (-1);
 
 	/* Use the environment to expand the instance name and look it up
@@ -678,7 +743,7 @@ job_class_start (JobClass        *class,
 	if (! start_env)
 		nih_return_system_error (-1);
 
-	if (! environ_append (&start_env, NULL, &len, TRUE, env))
+	if (! job_class_import_environment (class, &start_env, NULL, &len, env))
 		nih_return_system_error (-1);
 
 	/* Use the environment to expand the instance name and look it up
@@ -798,7 +863,7 @@ job_class_stop (JobClass       *class,
 	if (! stop_env)
 		nih_return_system_error (-1);
 
-	if (! environ_append (&stop_env, NULL, &len, TRUE, env))
+	if (! job_class_import_environment (class, &stop_env, NULL, &len, env))
 		nih_return_system_error (-1);
 
 	/* Use the environment to expand the instance name and look it up
@@ -845,7 +910,7 @@ job_class_stop (JobClass       *class,
 	if (job->stop_env)
 		nih_unref (job->stop_env, job);
 
-	job->stop_env = (char **)env;
+	job->stop_env = stop_env;
 	nih_ref (job->stop_env, job);
 
 	job_finished (job, FALSE);
@@ -921,7 +986,8 @@ job_class_restart (JobClass        *class,
 	if (! restart_env)
 		nih_return_system_error (-1);
 
-	if (! environ_append (&restart_env, NULL, &len, TRUE, env))
+	if (! job_class_import_environment (class, &restart_env, NULL, &len,
+					    env))
 		nih_return_system_error (-1);
 
 	/* Use the environment to expand the instance name and look it up

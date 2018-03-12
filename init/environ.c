@@ -384,6 +384,42 @@ environ_all_valid (char * const *env)
 	return TRUE;
 }
 
+/**
+ * environ_is_upstart_key:
+ * @var: An environment variable or value in KEY=VALUE form.
+ *
+ * Checks whether @var names an environment variable that is internally used by
+ * upstart.
+ *
+ * Returns: TRUE if @var is an upstart-internal variable, FALSE otherwise.
+ **/
+int
+environ_is_upstart_key (const char *var)
+{
+	static const char * const upstart_keys[] = {
+		"JOB",
+		"INSTANCE",
+		"RESULT",
+		"PROCESS",
+		"EXIT_SIGNAL",
+		"EXIT_STATUS",
+		NULL,
+	};
+	static const char upstart_prefix[] = "UPSTART_";
+	const char * const *e;
+	size_t key_len;
+
+	key_len = strcspn (var, "=");
+	for (e = upstart_keys; *e; e++) {
+		if ((strncmp (*e, var, key_len) == 0) && !((*e)[key_len]))
+			return TRUE;
+	}
+
+	if ( strncmp(var, upstart_prefix, sizeof (upstart_prefix) - 1) == 0)
+		return TRUE;
+
+	return FALSE;
+}
 
 /**
  * environ_expand:

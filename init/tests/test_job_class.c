@@ -1147,6 +1147,9 @@ test_get_instance (void)
 		TEST_ALLOC_SAFE {
 			class = job_class_new (NULL, "test");
 			class->instance = "$FOO";
+			class->import = nih_str_array_new (class);
+			assert (nih_str_array_add (&class->import, class, NULL,
+						   "FOO"));
 
 			job = job_new (class, "wibble");
 
@@ -1827,6 +1830,8 @@ test_start (void)
 	TEST_FEATURE ("with environment");
 	class = job_class_new (NULL, "test");
 	class->instance = "$FOO";
+	class->import = nih_str_array_new (class);
+	assert (nih_str_array_add (&class->import, class, NULL, "FOO"));
 
 	method = dbus_message_new_method_call (
 		dbus_bus_get_unique_name (conn),
@@ -1874,8 +1879,7 @@ test_start (void)
 	TEST_EQ_STRN (job->env[0], "PATH=");
 	TEST_EQ_STRN (job->env[1], "TERM=");
 	TEST_EQ_STR (job->env[2], "FOO=wibble");
-	TEST_EQ_STR (job->env[3], "BAR=wobble");
-	TEST_EQ_P (job->env[4], NULL);
+	TEST_EQ_P (job->env[3], NULL);
 
 	TEST_LIST_NOT_EMPTY (&job->blocking);
 
@@ -2273,6 +2277,8 @@ test_stop (void)
 	TEST_FEATURE ("with environment");
 	class = job_class_new (NULL, "test");
 	class->instance = "$FOO";
+	class->import = nih_str_array_new (class);
+	assert (nih_str_array_add (&class->import, class, NULL, "FOO"));
 
 	job = job_new (class, "wibble");
 	job->goal = JOB_START;
@@ -2315,9 +2321,10 @@ test_stop (void)
 	TEST_EQ (job->goal, JOB_STOP);
 	TEST_EQ (job->state, JOB_STOPPING);
 
-	TEST_EQ_STR (job->stop_env[0], "FOO=wibble");
-	TEST_EQ_STR (job->stop_env[1], "BAR=wobble");
-	TEST_EQ_P (job->stop_env[2], NULL);
+	TEST_EQ_STRN (job->stop_env[0], "PATH=");
+	TEST_EQ_STRN (job->stop_env[1], "TERM=");
+	TEST_EQ_STR (job->stop_env[2], "FOO=wibble");
+	TEST_EQ_P (job->stop_env[3], NULL);
 
 	TEST_LIST_NOT_EMPTY (&job->blocking);
 
@@ -2735,6 +2742,8 @@ test_restart (void)
 	TEST_FEATURE ("with environment");
 	class = job_class_new (NULL, "test");
 	class->instance = "$FOO";
+	class->import = nih_str_array_new (class);
+	assert (nih_str_array_add (&class->import, class, NULL, "FOO"));
 
 	job = job_new (class, "wibble");
 	job->goal = JOB_START;
@@ -2778,8 +2787,7 @@ test_restart (void)
 	TEST_EQ_STRN (job->start_env[0], "PATH=");
 	TEST_EQ_STRN (job->start_env[1], "TERM=");
 	TEST_EQ_STR (job->start_env[2], "FOO=wibble");
-	TEST_EQ_STR (job->start_env[3], "BAR=wobble");
-	TEST_EQ_P (job->start_env[4], NULL);
+	TEST_EQ_P (job->start_env[3], NULL);
 
 	TEST_LIST_NOT_EMPTY (&job->blocking);
 
@@ -2804,8 +2812,7 @@ test_restart (void)
 	TEST_EQ_STRN (job->env[0], "PATH=");
 	TEST_EQ_STRN (job->env[1], "TERM=");
 	TEST_EQ_STR (job->env[2], "FOO=wibble");
-	TEST_EQ_STR (job->env[3], "BAR=wobble");
-	TEST_EQ_P (job->env[4], NULL);
+	TEST_EQ_P (job->env[3], NULL);
 
 	TEST_NOT_FREE (blocked);
 
