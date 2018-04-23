@@ -310,9 +310,20 @@ automatically started.  When specified, the only way to start such a job
 is via \fBstart\fP (8).
 
 .SS Job environment
-Each job is run with the environment from the events or commands that
-started it.  In addition, you may define defaults in the job which may
-be overridden later and specify which environment variables are exported
+Each job is run with an environment constructed by init that includes
+additional information about the context the job was invoked in.  The
+job inherits a basic environment from the init process including some
+important variables, typically
+.B PATH
+and
+.BR TERM.
+The job can use the
+.B import
+stanza in its definition to declare additional variables it wants to
+import.  Values for imported variables may be supplied by events handled
+by the job or by commands that start or stop the job.  In addition, you
+may define defaults for additional variables in the job which may be
+overridden later and specify which environment variables are exported
 into the events generated for the job.
 
 The special
@@ -362,6 +373,21 @@ and to all resultant events
 .ft
 (not just those relating to the current job).
 .\"
+.TP
+.B import \fIKEY\fR
+Imports an environment variable from the event or command that started
+the job.  The job must declare all environment variables that it expects
+to be supplied by events or commands.  Variables that are present in
+events or commands but are not mentioned in
+.B import
+stanzas will not propagate into the job environment.  Variables
+that are provided by init (such as the various
+.B UPSTART_
+variables mentioned above) are entirely unaffected by import
+declarations: They are automatically present in the job environment if
+applicable but never allowed to be overriden by events or commands,
+regardless of the presence of corresponding import declarations.
+
 .SS Services, tasks and respawning
 Jobs are
 .I services
