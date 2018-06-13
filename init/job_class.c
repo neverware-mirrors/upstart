@@ -494,13 +494,8 @@ job_class_import_environment (JobClass     *class,
 				break;
 		}
 
-		if (! match) {
-			nih_message ("%s: Ignoring environment variable %s. "
-				     "To include it in the environment, add an "
-				     "import declaration to the job.",
-				     class->name, *e);
+		if (! match)
 			continue;
-		}
 
 		if (! environ_add (env, parent, len, TRUE, *e))
 			return NULL;
