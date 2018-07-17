@@ -49,6 +49,7 @@
 
 #ifdef HAVE_SELINUX
 #include <selinux/selinux.h>
+#include <selinux/restorecon.h>
 #endif
 
 #include <linux/kd.h>
@@ -281,6 +282,20 @@ main (int   argc,
 
 			exit (1);
 		}
+
+               const char *restore_paths[] = RESTORE_PATHS;
+               for (size_t i = 0;
+		     i < sizeof(restore_paths) / sizeof(const char *);
+		     i++) {
+			const int restorecon_args = SELINUX_RESTORECON_RECURSE |
+						    SELINUX_RESTORECON_REALPATH;
+       	        if (selinux_restorecon(restore_paths[i],
+					       restorecon_args) != 0) {
+				nih_warn ("%s: %d",
+					  _("Failed to restorecon"), errno);
+				// ignore error for now until policy are combined. exit(1);
+			}
+               }
 
 		putenv ("SELINUX_INIT=YES");
 		nih_info (_("SELinux policy loaded, doing self-exec"));

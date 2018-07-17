@@ -75,6 +75,7 @@ AC_ARG_ENABLE(selinux,
 if test "x$enable_selinux" = "xyes" ; then
 	PKG_CHECK_MODULES(SELINUX, [libselinux])
 	AC_DEFINE(HAVE_SELINUX, 1, [Define if we have SELinux])
+	AC_DEFINE(RESTORE_PATHS, [{"/dev"}], [Define restorecon paths])
 fi
 
 # Checks for typedefs, structures, and compiler characteristics.
