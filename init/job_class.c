@@ -490,11 +490,11 @@ job_class_import_environment (JobClass     *class,
 
 		elen = strcspn(*e, "=");
 		for (match = class->import; match && *match; match++) {
-			if ((strncmp (*match, *e, elen) == 0) && !match[elen])
+			if ((strncmp (*match, *e, elen) == 0) && ! (*match)[elen])
 				break;
 		}
 
-		if (! match)
+		if (! match || ! *match)
 			continue;
 
 		if (! environ_add (env, parent, len, TRUE, *e))
