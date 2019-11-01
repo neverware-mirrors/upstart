@@ -43,7 +43,6 @@
 #include <unistd.h>
 
 #ifdef ADD_DIRCRYPTO_RING
-#include <ext2fs/ext2_fs.h>
 #include <keyutils.h>
 #endif
 
@@ -130,11 +129,6 @@ main (int   argc,
 	char **args;
 	char  *arg_end = NULL;
 	int    ret;
-#ifdef ADD_DIRCRYPTO_RING
-	int    root_fd;
-	struct ext4_encryption_policy policy;
-	key_serial_t keyring_id;
-#endif
 
 	argv0 = argv[0];
 	nih_main_init (argv0);
@@ -319,30 +313,16 @@ main (int   argc,
 #endif /* DEBUG */
 
 #ifdef ADD_DIRCRYPTO_RING
-#define EXT4_IOC_GET_ENCRYPTION_POLICY \
-	_IOW('f', 21, struct ext4_encryption_policy)
 	/*
 	 * Set a keyring for the session to hold ext4 crypto keys.
 	 * The session is at the root of all processes, so any users who wish
 	 * to access a directory protected by ext4 crypto can access the key.
 	 *
-	 * Set only a session keyring when needed.
-	 * A kernel patch is needed (see crbug/593893).
-	 * Upstream kernel does not have the patch yet
-	 * (See https://lkml.org/lkml/2016/3/17/491).
+	 * Only set a session keyring if the kernel supports ext4 encryption.
 	 */
-	int fd = open("/", O_RDONLY | O_DIRECTORY | O_CLOEXEC);
-	if (fd == -1) {
-		nih_warn("%s: %s", _("Unable to open / directory: %s"),
-			 strerror (errno));
-		ret = EINVAL;
-	} else {
-		ret = ioctl(fd, EXT4_IOC_GET_ENCRYPTION_POLICY, &policy);
-		if (ret)
-			ret = errno;
-		close(fd);
-	}
-	if (ret != EINVAL && ret != EOPNOTSUPP && ret != ENOTTY) {
+	if (!access("/sys/fs/ext4/features/encryption", F_OK)) {
+		key_serial_t keyring_id;
+
 		keyring_id = add_key ("keyring", "dircrypt", 0, 0,
 				KEY_SPEC_SESSION_KEYRING);
 		if (keyring_id == -1) {
