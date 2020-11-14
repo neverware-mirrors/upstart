@@ -29,6 +29,7 @@
 #include <sys/stat.h>
 #include <sys/wait.h>
 #include <sys/ptrace.h>
+#include <sys/sysmacros.h>
 
 #include <time.h>
 #include <stdio.h>
