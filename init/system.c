@@ -205,7 +205,7 @@ system_mount (const char *type,
 		return 0;
 
 	/* Mount the filesystem */
-       if (mount ("none", dir, type, opts, NULL) < 0)
+	if (mount (type, dir, type, opts, NULL) < 0)
 		nih_return_system_error (-1);
 
 	return 0;
