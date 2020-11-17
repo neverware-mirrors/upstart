@@ -224,7 +224,7 @@ main (int   argc,
 	 * ourselves.
 	 */
 	if (system_mount ("proc", "/proc",
-			  MS_NODEV | MS_NOEXEC | MS_NOSUID) < 0) {
+			  MS_NODEV | MS_NOEXEC | MS_NOSUID, NULL) < 0) {
 		NihError *err;
 
 		err = nih_error_get ();
@@ -234,11 +234,21 @@ main (int   argc,
 	}
 
 	if (system_mount ("sysfs", "/sys",
-			  MS_NODEV | MS_NOEXEC | MS_NOSUID) < 0) {
+			  MS_NODEV | MS_NOEXEC | MS_NOSUID, NULL) < 0) {
 		NihError *err;
 
 		err = nih_error_get ();
 		nih_warn ("%s: %s", _("Unable to mount /sys filesystem"),
+			  err->message);
+		nih_free (err);
+	}
+
+	if (system_mount ("tmpfs", "/tmp", MS_NOSUID | MS_NODEV | MS_NOEXEC,
+			  NULL) < 0) {
+		NihError *err;
+
+		err = nih_error_get ();
+		nih_warn ("%s: %s", _("Unable to mount /tmp filesystem"),
 			  err->message);
 		nih_free (err);
 	}
@@ -253,7 +263,7 @@ main (int   argc,
 		 * selinuxfs.
 		 */
 		if (system_mount ("selinuxfs", "/sys/fs/selinux",
-				  MS_NOEXEC | MS_NOSUID) < 0) {
+				  MS_NOEXEC | MS_NOSUID, NULL) < 0) {
 			NihError *err;
 
 			err = nih_error_get ();

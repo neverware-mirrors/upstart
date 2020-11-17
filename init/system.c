@@ -176,7 +176,8 @@ system_setup_console (ConsoleType type,
 int
 system_mount (const char *type,
 	      const char *dir,
-	      unsigned int opts)
+	      unsigned int opts,
+	      const char *options)
 {
 	nih_local char *parent = NULL;
 	char *          ptr;
@@ -205,7 +206,7 @@ system_mount (const char *type,
 		return 0;
 
 	/* Mount the filesystem */
-	if (mount (type, dir, type, opts, NULL) < 0)
+	if (mount (type, dir, type, opts, options) < 0)
 		nih_return_system_error (-1);
 
 	return 0;
