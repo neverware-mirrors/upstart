@@ -253,6 +253,25 @@ main (int   argc,
 		nih_free (err);
 	}
 
+	if (system_mount ("tmpfs", "/run", MS_NOSUID | MS_NODEV | MS_NOEXEC,
+			  "mode=0755") < 0) {
+		NihError *err;
+
+		err = nih_error_get ();
+		nih_warn ("%s: %s", _("Unable to mount /run filesystem"),
+			  err->message);
+		nih_free (err);
+	}
+
+	if (mkdir ("/run/lock", 01777) < 0 && errno != EEXIST) {
+		NihError *err;
+
+		err = nih_error_get ();
+		nih_warn ("%s: %s", _("Unable to mkdir /run/lock"),
+			  err->message);
+		nih_free (err);
+	}
+
 #ifdef HAVE_SELINUX
 	if (!getenv ("SELINUX_INIT")) {
 		/*
