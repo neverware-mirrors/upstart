@@ -263,7 +263,8 @@ main (int   argc,
 		nih_free (err);
 	}
 
-	if (mkdir ("/run/lock", 01777) < 0 && errno != EEXIST) {
+	if ((mkdir ("/run/lock", 01777) < 0 && errno != EEXIST) ||
+	    chmod ("/run/lock", 01777) < 0) {
 		NihError *err;
 
 		err = nih_error_get ();
